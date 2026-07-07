@@ -1,0 +1,110 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/theme.json",
+	"version": 2,
+	"settings": {
+		"appearanceTools": true,
+		"color": {
+			"custom": false,
+			"customGradient": false,
+			"defaultPalette": false,
+			"palette": [
+				{ "slug": "primary", "name": "Primary", "color": "#E07A10" },
+				{ "slug": "on-primary", "name": "On Primary", "color": "#2E1A00" },
+				{ "slug": "primary-container", "name": "Primary Container", "color": "#FFD8A8" },
+				{ "slug": "on-primary-container", "name": "On Primary Container", "color": "#241400" },
+				{ "slug": "primary-fixed", "name": "Primary Fixed", "color": "#FFE8CC" },
+				{ "slug": "on-primary-fixed", "name": "On Primary Fixed", "color": "#241400" },
+				{ "slug": "primary-fixed-dim", "name": "Primary Fixed Dim", "color": "#CC6A08" },
+				{ "slug": "inverse-primary", "name": "Inverse Primary", "color": "#F5A03A" },
+				{ "slug": "surface-tint", "name": "Surface Tint", "color": "#E07A10" },
+
+				{ "slug": "secondary", "name": "Secondary", "color": "#D4AF37" },
+				{ "slug": "on-secondary", "name": "On Secondary", "color": "#241A00" },
+				{ "slug": "secondary-container", "name": "Secondary Container", "color": "#FCE28A" },
+				{ "slug": "on-secondary-container", "name": "On Secondary Container", "color": "#241A00" },
+				{ "slug": "secondary-fixed", "name": "Secondary Fixed", "color": "#FFF0B5" },
+				{ "slug": "on-secondary-fixed", "name": "On Secondary Fixed", "color": "#1F1500" },
+				{ "slug": "secondary-fixed-dim", "name": "Secondary Fixed Dim", "color": "#E0BA40" },
+				{ "slug": "on-secondary-fixed-variant", "name": "On Secondary Fixed Variant", "color": "#4A3A00" },
+
+				{ "slug": "tertiary", "name": "Tertiary", "color": "#6B3A6B" },
+				{ "slug": "on-tertiary", "name": "On Tertiary", "color": "#FFFFFF" },
+				{ "slug": "tertiary-container", "name": "Tertiary Container", "color": "#F0D0F0" },
+				{ "slug": "on-tertiary-container", "name": "On Tertiary Container", "color": "#2A1A2A" },
+				{ "slug": "tertiary-fixed", "name": "Tertiary Fixed", "color": "#F8E0F8" },
+				{ "slug": "on-tertiary-fixed", "name": "On Tertiary Fixed", "color": "#1C0E1C" },
+				{ "slug": "tertiary-fixed-dim", "name": "Tertiary Fixed Dim", "color": "#D0B0D0" },
+				{ "slug": "on-tertiary-fixed-variant", "name": "On Tertiary Fixed Variant", "color": "#4A284A" },
+
+				{ "slug": "surface", "name": "Surface", "color": "#FFFCF5" },
+				{ "slug": "surface-bright", "name": "Surface Bright", "color": "#FFFCF5" },
+				{ "slug": "surface-dim", "name": "Surface Dim", "color": "#E8DEC8" },
+				{ "slug": "surface-container-lowest", "name": "Surface Container Lowest", "color": "#FFFFFF" },
+				{ "slug": "surface-container-low", "name": "Surface Container Low", "color": "#FEF8EC" },
+				{ "slug": "surface-container", "name": "Surface Container", "color": "#F8F0E0" },
+				{ "slug": "surface-container-high", "name": "Surface Container High", "color": "#F0E8D4" },
+				{ "slug": "surface-container-highest", "name": "Surface Container Highest", "color": "#E8DEC8" },
+				{ "slug": "surface-variant", "name": "Surface Variant", "color": "#F2ECE0" },
+				{ "slug": "background", "name": "Background", "color": "#FFFCF5" },
+				{ "slug": "on-background", "name": "On Background", "color": "#1E1A10" },
+				{ "slug": "on-surface", "name": "On Surface", "color": "#1E1A10" },
+				{ "slug": "on-surface-variant", "name": "On Surface Variant", "color": "#4D4534" },
+				{ "slug": "inverse-surface", "name": "Inverse Surface", "color": "#2E2A1E" },
+				{ "slug": "inverse-on-surface", "name": "Inverse On Surface", "color": "#F5EFE2" },
+
+				{ "slug": "outline", "name": "Outline", "color": "#B89840" },
+				{ "slug": "outline-variant", "name": "Outline Variant", "color": "#D8C88A" },
+
+				{ "slug": "error", "name": "Error", "color": "#BA1A1A" },
+				{ "slug": "on-error", "name": "On Error", "color": "#FFFFFF" },
+				{ "slug": "error-container", "name": "Error Container", "color": "#FFDAD6" },
+				{ "slug": "on-error-container", "name": "On Error Container", "color": "#93000A" },
+
+				{ "slug": "off-white", "name": "Off White", "color": "#FFFFFF" },
+				{ "slug": "warm-grey", "name": "Warm Grey", "color": "#EAE0CC" },
+				{ "slug": "warm-ivory", "name": "Warm Ivory", "color": "#FDF8EC" }
+			]
+		},
+		"typography": {
+			"customFontSize": false,
+			"fontFamilies": [
+				{
+					"slug": "playfair-display",
+					"name": "Playfair Display",
+					"fontFamily": "\"Playfair Display\", serif"
+				},
+				{
+					"slug": "montserrat",
+					"name": "Montserrat",
+					"fontFamily": "\"Montserrat\", sans-serif"
+				}
+			],
+			"fontSizes": [
+				{ "slug": "label-md", "name": "Label MD", "size": "12px" },
+				{ "slug": "label-lg", "name": "Label LG", "size": "14px" },
+				{ "slug": "body-md", "name": "Body MD", "size": "16px" },
+				{ "slug": "body-lg", "name": "Body LG", "size": "18px" },
+				{ "slug": "headline-sm", "name": "Headline SM", "size": "24px" },
+				{ "slug": "headline-md", "name": "Headline MD", "size": "32px" },
+				{ "slug": "headline-lg-mobile", "name": "Headline LG (mobile)", "size": "32px" },
+				{ "slug": "headline-lg", "name": "Headline LG", "size": "48px" },
+				{ "slug": "display-lg-mobile", "name": "Display LG (mobile)", "size": "40px" },
+				{ "slug": "display-lg", "name": "Display LG", "size": "64px" }
+			]
+		},
+		"spacing": {
+			"units": [ "px", "rem", "%" ],
+			"spacingSizes": [
+				{ "slug": "base", "name": "Base", "size": "8px" },
+				{ "slug": "margin-mobile", "name": "Margin (mobile)", "size": "20px" },
+				{ "slug": "gutter", "name": "Gutter", "size": "24px" },
+				{ "slug": "margin-desktop", "name": "Margin (desktop)", "size": "80px" },
+				{ "slug": "section-gap", "name": "Section Gap", "size": "120px" }
+			]
+		},
+		"layout": {
+			"contentSize": "1440px",
+			"wideSize": "1440px"
+		}
+	}
+}

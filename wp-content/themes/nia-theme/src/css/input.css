@@ -2,5 +2,46 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Phase 2 adds the compiled @font-face rules for self-hosted Playfair
-   Display + Montserrat + Material Symbols Outlined here (ARCHITECTURE.md §3). */
+/* Self-hosted fonts are enqueued separately as assets/css/fonts.css
+   (functions.php) so they load before this stylesheet — see
+   ARCHITECTURE.md §3. Nothing font-related belongs in this file. */
+
+@layer components {
+  /* DESIGN_SYSTEM.md §1 — canonical shadow value, codified as one
+     custom property so every "elevated" card stays in sync. */
+  :root {
+    --shadow-sunlight: 0 20px 40px -10px rgba(115, 92, 0, 0.08);
+  }
+
+  .sunlight-shadow {
+    box-shadow: var(--shadow-sunlight);
+  }
+
+  /* DESIGN_SYSTEM.md §3 — 12-col asymmetric hero/story layout grid. */
+  .editorial-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 24px;
+  }
+}
+
+@layer utilities {
+  /* DESIGN_SYSTEM.md §1 — global scrollbar style (not a design token). */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #faf9f6;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #d0c5af;
+  }
+
+  /* Base print rule — page-specific print behavior (e.g. hiding the
+     header/mobile drawer) is refined once those exist in Phase 3. */
+  @media print {
+    .no-print {
+      display: none !important;
+    }
+  }
+}

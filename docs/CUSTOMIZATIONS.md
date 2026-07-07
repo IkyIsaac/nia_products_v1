@@ -95,7 +95,7 @@ Status values: **Not Started** · **In Progress** · **Review** · **Completed**
 
 | Customization | Mechanism | Why not a hook (if override) | Status |
 |---|---|---|---|
-| Elementor Global Colors/Fonts configured to mirror `DESIGN_SYSTEM.md` tokens | Elementor Site Settings, configured once after Phase 2's `tailwind.config.js` is finalized | — | Not Started |
+| Elementor Global Colors/Fonts configured to mirror `DESIGN_SYSTEM.md` tokens | Elementor Site Settings (`_elementor_page_settings` on the active kit) — 4 system colors + 8 curated custom colors, 4 system typography styles + 3 curated custom styles | — | Completed (2026-07-07) |
 | Elementor Saved Template library (Hero, Benefit Grid, Testimonial, CTA Banner, Newsletter, promo tile) mirroring the custom Gutenberg block set | Elementor "Save as Template" (global), built in Phase 3 alongside the block library | — | Not Started |
 | Compiled Tailwind utility classes made usable inside Elementor | No new mechanism — the compiled stylesheet (`ARCHITECTURE.md` §3) is already enqueued site-wide; classes are applied via each widget's Advanced → CSS Classes field | — | Not Started |
 | **Governance rule (not a build task, but must be respected by every future edit):** Elementor may only edit content on static/marketing pages. **Never** on Shop, Product, Cart, Checkout, My Account, or header/footer — those remain fully custom-coded/hook-driven. | Enforced structurally: free Elementor has no Theme Builder, so it cannot reach header/footer/WooCommerce templates regardless of policy | — | N/A (standing rule) |

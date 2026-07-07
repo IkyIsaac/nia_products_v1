@@ -60,9 +60,9 @@ A currency switcher (added 2026-07-07 per client request, now implemented via WP
 **Mitigation:** decide and document the rate source/update cadence/rounding rule during Phase 5; verify the WPML multicurrency module is compatible with the block-based Checkout and the custom Selcom gateway before committing to it (fall back to a standalone currency plugin alongside WPML if it isn't).
 
 ### R15 — Elementor and the Tailwind/theme.json token set are two systems that must stay in sync
-**Severity:** Low-Medium. **Status:** Open.
+**Severity:** Low-Medium. **Status:** Open (initial sync done 2026-07-07; the ongoing drift risk remains open by nature).
 Keeping Elementor free for occasional client-side content edits (client direction, 2026-07-08 — see `ARCHITECTURE.md` §2a) means design tokens now live in two places: the compiled `tailwind.config.js`/`theme.json` and Elementor's own Global Colors/Global Fonts settings. If the brand palette or type scale ever changes, updating only one of the two will cause Elementor-edited sections to silently drift from the rest of the site.
-**Mitigation:** configure Elementor's Global Colors/Fonts directly from the finalized token set once, in Phase 2/3 (not before); document the sync obligation here and in `CUSTOMIZATIONS.md` so any future token change includes an explicit "update Elementor Global Colors/Fonts too" step; periodically spot-check an Elementor-edited page against `DESIGN_SYSTEM.md` during QA (Phase 11).
+**Mitigation:** configure Elementor's Global Colors/Fonts directly from the finalized token set once, in Phase 2/3 (not before) — **done 2026-07-07**: 4 system colors + 8 curated custom colors, 4 system typography styles + 3 curated custom styles (a curated brand subset, not all ~50 raw M3 tokens, matching the "content-editing tool" scope rather than the full engineering token set); document the sync obligation here and in `CUSTOMIZATIONS.md` so any future token change includes an explicit "update Elementor Global Colors/Fonts too" step; periodically spot-check an Elementor-edited page against `DESIGN_SYSTEM.md` during QA (Phase 11).
 
 ### R16 — Elementor scope creep beyond content-only editing
 **Severity:** Low. **Status:** Open (technically constrained, but worth watching).
@@ -98,17 +98,17 @@ Automating the renewal *reminder* is straightforward; what happens when a custom
 A small, single-developer-maintained custom build (custom gateway, custom subscription engine, custom WhatsApp integration) concentrates knowledge. This is why `ARCHITECTURE.md` and `CUSTOMIZATIONS.md` exist and must be kept current — the mitigation *is* the documentation discipline itself, not a separate action item.
 
 ### R19 — Hostinger account signup/payment cannot be done by the development side
-**Severity:** Medium (schedule blocker). **Status:** Open (added 2026-07-07, Phase 1).
+**Severity:** Medium (schedule blocker). **Status:** Open — On Hold (client decision 2026-07-07: prioritize static marketing pages first; revisit before Phase 5).
 The host was confirmed (`PLUGIN_DECISIONS.md`), but actually creating the Hostinger Business/Cloud account is a real-world purchase requiring the client's payment method and business details — not something that can be provisioned from the development side. All other Phase 1 local-environment work (WordPress/WooCommerce install, HPOS, foundation plugins, build tooling, WPCS) has proceeded against the local dev environment in the meantime so nothing else is blocked.
 **Mitigation:** client to sign up for the Hostinger Business/Cloud (WooCommerce plan) account and share access; staging can then be provisioned there per `PROJECT_PLAN.md` Phase 1.
 
 ### R20 — WPML requires a paid license, cannot be installed from the free plugin repository
-**Severity:** Medium (schedule blocker). **Status:** Open (added 2026-07-07, Phase 1).
+**Severity:** Medium (schedule blocker). **Status:** Open — On Hold (client decision 2026-07-07: prioritize static marketing pages first). **Direct consequence:** per `PAGE_STATUS.md`'s language rule, no page can reach "Completed" (only "Review") until WPML is installed and Kiswahili versions exist — accepted by the client as part of this hold.
 WPML (and its WooCommerce Multilingual & Multicurrency add-on) is a paid, licensed plugin distributed from wpml.org, not WordPress.org — it cannot be installed via the standard free-plugin workflow used for the rest of the Phase 1 plugin baseline. Multilingual/multicurrency work (header switchers' real logic, product/category translation, Phase 5 verification) is blocked until this is resolved.
 **Mitigation:** client to purchase the WPML "Multilingual CMS" tier (includes the WooCommerce add-on) and provide the plugin zip + license key; install and configure once received.
 
 ### R21 — Business email + SMTP credentials not yet provided
-**Severity:** Low-Medium (schedule blocker). **Status:** Open (added 2026-07-07, Phase 1).
+**Severity:** Low-Medium (schedule blocker). **Status:** Open — On Hold (client decision 2026-07-07: prioritize static marketing pages first; not needed until transactional email matters, i.e. by Phase 5/8).
 FluentSMTP is installed, but cannot be configured or tested without a real business mailbox and its SMTP credentials (host, port, username, password/API key) from the client.
 **Mitigation:** client to provide/create a business mailbox (Google Workspace, Hostinger mail, or other) and share SMTP credentials; configure and send a verified test email once received.
 

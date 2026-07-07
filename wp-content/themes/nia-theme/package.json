@@ -2,7 +2,7 @@
   "name": "nia-theme",
   "private": true,
   "version": "0.0.0",
-  "description": "Build tooling for the Nia Theme. Compiles Tailwind CSS from src/css/input.css into assets/css/style.css. This package.json is Phase 1 infrastructure (ARCHITECTURE.md §3, PROJECT_PLAN.md Phase 1) — the theme itself (style.css header, functions.php, templates) is scaffolded in Phase 2.",
+  "description": "Build tooling for the Nia Theme. Compiles Tailwind CSS from src/css/input.css into assets/css/style.css.",
   "scripts": {
     "build": "tailwindcss -i ./src/css/input.css -o ./assets/css/style.css --minify",
     "watch": "tailwindcss -i ./src/css/input.css -o ./assets/css/style.css --watch"
@@ -10,6 +10,7 @@
   "devDependencies": {
     "tailwindcss": "^3.4.0",
     "postcss": "^8.4.0",
-    "autoprefixer": "^10.4.0"
+    "autoprefixer": "^10.4.0",
+    "@tailwindcss/forms": "^0.5.7"
   }
 }

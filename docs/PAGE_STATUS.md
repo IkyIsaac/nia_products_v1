@@ -4,7 +4,9 @@ Status values: **Not Started** · **In Progress** · **Review** · **Completed**
 
 Update this file the moment a page's status changes — do not batch updates at phase end. This is the single place anyone on the project can check "is X page done yet."
 
-**Language rule (client-confirmed 2026-07-08):** every page below must have both an English (default) and a Kiswahili version completed via WPML before it is marked **Completed** — a page with only its English version done should stay at **In Progress**/**Review**, not Completed.
+**Language rule (client-confirmed 2026-07-08):** every page below must have both an English (default) and a Kiswahili version completed via WPML before it is marked **Completed** — a page with only its English version done should stay at **In Progress**/**Review**, not Completed. **Currently on hold:** WPML is not yet installed (client decision 2026-07-07, see `RISKS.md` R20) — no page can reach Completed until it's unblocked.
+
+**Phase 2 (Theme Foundation) — done 2026-07-07:** the Nia Theme is scaffolded and active (`wp-content/themes/nia-theme`) — `style.css`, `functions.php`, `theme.json`, base templates (`index.php`, `page.php`, `single.php`, `archive.php`, `404.php`), minimal `header.php`/`footer.php` stubs (real markup is Phase 3). Full token set compiled via Tailwind (`tailwind.config.js`) and mirrored in `theme.json`'s block-editor palette/font sizes. Fonts self-hosted (Playfair Display, Montserrat, Material Symbols Outlined — latin/latin-ext subsets only, no CDN requests). Elementor's Global Colors/Fonts configured to mirror the same tokens (curated subset — see `ARCHITECTURE.md` §2a). Verified: blank pages render correctly (home, single post, static page, WooCommerce shop archive, 404), no PHP errors/warnings, WPCS clean.
 
 ---
 

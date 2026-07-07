@@ -2,7 +2,7 @@
 
 Complete execution roadmap. Phases are sequential and gated — **each phase must be fully complete and approved before the next begins.** Every task completed updates `PAGE_STATUS.md`, `CUSTOMIZATIONS.md`, or `AUTOMATIONS.md` as applicable (see each phase's "Docs to update" line).
 
-**Status: Phase 1 in progress (started 2026-07-07). Local environment tasks complete; three items are blocked on client-provided accounts/credentials/purchase (see Phase 1 below).**
+**Status: client-directed sequencing exception (2026-07-07).** Phase 1's three blocked items — Hostinger account, WPML license, business email/SMTP — are **on hold** at the client's request, prioritizing static marketing pages first. **Phase 2 (Theme Foundation) is complete** (2026-07-07) — none of it depended on the three held items. Awaiting go-ahead to start Phase 3 (Global Components). Phase 4 (marketing pages) can be built and reviewed, but **cannot reach "Completed" status** without WPML for the Kiswahili version required by `PAGE_STATUS.md`'s language rule — pages will stay at "Review" until WPML is unblocked. This is a known, accepted consequence of the hold, not an oversight.
 
 ---
 
@@ -32,7 +32,7 @@ Complete execution roadmap. Phases are sequential and gated — **each phase mus
 - [x] Set up local dev tooling: Tailwind CLI/PostCSS build, npm scripts, PHP coding-standard linting (WPCS) — done 2026-07-07. Tailwind build pipeline scaffolded in `wp-content/themes/nia-theme/` (`package.json`, `tailwind.config.js`, `postcss.config.js`, `src/css/input.css`) and verified compiling (`npm run build`/`npm run watch`). WPCS installed via root `composer.json` + `phpcs.xml`, verified running clean against the theme directory (`vendor/bin/phpcs`).
 - [ ] Set up business email + verify SMTP sending from staging. **BLOCKED — client action required:** the client needs to provide a real business mailbox (e.g. via Google Workspace or Hostinger's own mail) and its SMTP credentials before FluentSMTP (already installed) can be configured and tested.
 
-**Exit criteria:** clean WordPress + WooCommerce install on staging, all foundation plugins active and configured, build tooling runs locally, test email delivers successfully. **Not yet met** — the three blocked items above (hosting account, WPML license, business email/SMTP credentials) must be resolved before Phase 1 can close and Phase 2 begins.
+**Exit criteria:** clean WordPress + WooCommerce install on staging, all foundation plugins active and configured, build tooling runs locally, test email delivers successfully. **Not yet met, and formally on hold (client decision 2026-07-07)** — the three blocked items above (hosting account, WPML license, business email/SMTP credentials) are deprioritized while marketing pages are built first. **Phase 2 has been given the go-ahead to start regardless**, since it doesn't depend on any of the three (see Phase 2 below).
 
 **Docs to update:** none content-wise — hosting and its downstream plugin choice (LiteSpeed Cache) are already resolved and marked final in `PLUGIN_DECISIONS.md` and `RISKS.md` R5. This entry itself is the Phase 1 progress update.
 
@@ -40,19 +40,21 @@ Complete execution roadmap. Phases are sequential and gated — **each phase mus
 
 ## Phase 2 — Theme Foundation
 
+**Started and completed 2026-07-07, ahead of Phase 1's formal close (client-directed sequencing exception — see `PROJECT_PLAN.md` top status and `RISKS.md` R19–R21).** None of this phase's tasks required Hostinger, WPML, or business email/SMTP — theme scaffolding, token compilation, and base templates are purely local build work.
+
 **Goal:** the custom "Nia Theme" skeleton exists and compiles the full design-token set.
 
-- Scaffold custom theme (`style.css` header, `functions.php`, template hierarchy, `theme.json` for block-editor color/typography palettes matching `DESIGN_SYSTEM.md`).
-- Implement `tailwind.config.js` with the exact token set from `DESIGN_SYSTEM.md` §1–3 (colors, type scale, spacing, radius) — single source, no per-page drift.
-- Self-host Playfair Display + Montserrat + Material Symbols Outlined (subset to used weights).
-- Confirm the two open type-scale gaps (`headline-sm`, `tertiary-fixed`) are resolved per client sign-off from Phase 0.
-- Set up base template files: `page.php`, `single.php`, `archive.php`, `404.php`, print/reset styles.
-- Configure Elementor's Site Settings (Global Colors + Global Fonts) to mirror this same token set (see `ARCHITECTURE.md` §2a) — do this once the token set above is final, not before.
-- Confirm `theme.json`/template strings are translation-ready (`__()`/`_e()`) in preparation for WPML string translation in later phases.
+- [x] Scaffold custom theme (`style.css` header, `functions.php`, template hierarchy, `theme.json` for block-editor color/typography palettes matching `DESIGN_SYSTEM.md`).
+- [x] Implement `tailwind.config.js` with the exact token set from `DESIGN_SYSTEM.md` §1–3 (colors, type scale, spacing, radius) — single source, no per-page drift.
+- [x] Self-host Playfair Display + Montserrat + Material Symbols Outlined — downloaded and subset to latin/latin-ext only (sufficient for English + Kiswahili, both Latin-script), served from `assets/fonts/` via `assets/css/fonts.css`, zero Google Fonts CDN requests (verified in Phase 2 exit-criteria check).
+- [x] Confirm the two open type-scale gaps (`headline-sm`, `tertiary-fixed`) are resolved per client sign-off from Phase 0 — both encoded in `tailwind.config.js` and `theme.json`.
+- [x] Set up base template files: `index.php`, `page.php`, `single.php`, `archive.php`, `404.php`, minimal `header.php`/`footer.php` stubs (real nav/footer markup is Phase 3), print/reset styles (`src/css/input.css`).
+- [x] Configure Elementor's Site Settings (Global Colors + Global Fonts) to mirror this same token set (see `ARCHITECTURE.md` §2a) — done via the kit's `_elementor_page_settings`: 4 system colors + 8 curated custom colors, 4 system typography styles + 3 curated custom styles (a curated brand subset, not all ~50 raw M3 tokens — appropriate for a content-editing tool, per the Elementor governance scoping already documented).
+- [ ] Confirm `theme.json`/template strings are translation-ready (`__()`/`_e()`) in preparation for WPML string translation in later phases — done for the templates built so far (all strings wrapped); revisit as Phase 3/4 add more.
 
-**Exit criteria:** blank pages render with correct fonts, colors, and spacing scale; no CDN Tailwind or Google Fonts CDN requests in network tab; Elementor's Global Colors/Fonts match the theme exactly when tested on a scratch page.
+**Exit criteria:** blank pages render with correct fonts, colors, and spacing scale; no CDN Tailwind or Google Fonts CDN requests in network tab; Elementor's Global Colors/Fonts match the theme exactly when tested on a scratch page. **Met and verified 2026-07-07** — homepage, a single post, a static page, the WooCommerce shop archive, and a 404 all return correct status codes with the compiled stylesheet/fonts enqueued, zero CDN requests, zero PHP errors/warnings/notices, and WPCS runs clean against all 8 theme files.
 
-**Docs to update:** `PAGE_STATUS.md` (mark theme scaffold done, still no pages).
+**Docs to update:** `PAGE_STATUS.md` (theme scaffold done, still no pages — done, see Phase 2 note there).
 
 ---
 

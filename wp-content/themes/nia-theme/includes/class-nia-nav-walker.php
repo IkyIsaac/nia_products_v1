@@ -37,4 +37,16 @@ class Nia_Nav_Walker extends Walker_Nav_Menu {
 			esc_html( $item->title )
 		);
 	}
+
+	/**
+	 * No <li> wrapper is used for this flat inline nav — suppress the
+	 * default Walker_Nav_Menu closing tag that would otherwise pair with
+	 * nothing (start_el() above only outputs the <a>, not an <li>).
+	 *
+	 * @param string   $output Passed by reference, appended to.
+	 * @param WP_Post  $item   Menu item.
+	 * @param int      $depth  Depth.
+	 * @param stdClass $args   Menu args.
+	 */
+	public function end_el( &$output, $item, $depth = 0, $args = null ) {}
 }

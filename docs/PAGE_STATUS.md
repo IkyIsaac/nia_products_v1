@@ -8,23 +8,25 @@ Update this file the moment a page's status changes — do not batch updates at 
 
 **Phase 2 (Theme Foundation) — done 2026-07-07:** the Nia Theme is scaffolded and active (`wp-content/themes/nia-theme`) — `style.css`, `functions.php`, `theme.json`, base templates (`index.php`, `page.php`, `single.php`, `archive.php`, `404.php`), minimal `header.php`/`footer.php` stubs (real markup is Phase 3). Full token set compiled via Tailwind (`tailwind.config.js`) and mirrored in `theme.json`'s block-editor palette/font sizes. Fonts self-hosted (Playfair Display, Montserrat, Material Symbols Outlined — latin/latin-ext subsets only, no CDN requests). Elementor's Global Colors/Fonts configured to mirror the same tokens (curated subset — see `ARCHITECTURE.md` §2a). Verified: blank pages render correctly (home, single post, static page, WooCommerce shop archive, 404), no PHP errors/warnings, WPCS clean.
 
+**Phase 4 (Static Marketing Pages) — English builds done 2026-07-07.** All 10 pages below are live, responsive, and match their mockups' design language using dedicated `page-*.php` templates (per-page bespoke layouts) that reuse the Phase 3 block library (`nia/hero`, `nia/benefit-grid`, `nia/testimonial`, `nia/cta-banner`, `nia/newsletter-signup`) via `render_block()` for repeating sections. **Every page is capped at Review, not Completed** — the language rule above requires a Kiswahili version via WPML, which is on hold (R20). Two further known gaps, both already tracked in `RISKS.md`: **(1)** all photography is the mockups' original AI-generated placeholder imagery, now self-hosted in `wp-content/themes/nia-theme/assets/images/placeholders/` (fixed page images) or the media library (blog post featured images) instead of hotlinked from Google — still needs replacing with real product/lifestyle photography before launch (R6). **(2)** the 4 policy pages contain original draft copy (no client-provided legal text existed to transcribe) and are visibly marked "pending final legal review" on-page — see R22 below. A real `wp_nav_menu` ("Primary Navigation") now backs the header, replacing the Phase 3 fallback; `Nia_Nav_Walker`'s active-state highlighting verified working.
+
 ---
 
 ## Static Marketing Pages (Phase 4)
 
 | Page | Source mockup | Status | Notes |
 |---|---|---|---|
-| Homepage | `index.html` | Not Started | |
-| Our Heritage / About | `about-nia.html` | Not Started | Do NOT use `about.html` — abandoned concept, see `DESIGN_SYSTEM.md` §0 |
-| Contact | `contact.html` | Not Started | Form via Fluent Forms |
-| FAQ | `faqs.html` | Not Started | Re-theme from stale olive-gold palette to canonical orange-gold |
-| Wellness Journal — index | `journal.html` | Not Started | |
-| Wellness Journal — single post template | `journal.html` (article layout) | Not Started | |
-| The Ritual / Subscription info page | `ritual.html` / `subscription.html` | Not Started | Build ONE template — pages are near-duplicates, see `DESIGN_SYSTEM.md` §0 |
-| Shipping Policy | none (new content) | Not Started | Style per system, no direct mockup |
-| Refund Policy | none (new content) | Not Started | Style per system, no direct mockup |
-| Privacy Policy | none (new content) | Not Started | Style per system, no direct mockup |
-| Terms of Service | none (new content) | Not Started | Style per system, no direct mockup |
+| Homepage | `index.html` | Review | `page-homepage.php`, set as the static front page. Featured Products section is a static 4-card placeholder — Phase 5 wires a live WooCommerce query (`ARCHITECTURE.md` §9a) |
+| Our Heritage / About | `about-nia.html` | Review | `page-about.php`, slug `/about/`. Does NOT use `about.html` — abandoned concept, see `DESIGN_SYSTEM.md` §0 |
+| Contact | `contact.html` | Review | `page-contact.php`, slug `/contact/`. Form is a real Fluent Forms form (#5, "Contact Page Inquiry") with matching fields, not dead markup |
+| FAQ | `faqs.html` | Review | `page-faq.php`, slug `/faq/`. Re-themed from stale olive-gold to canonical orange-gold; accordion + category tabs rebuilt with Alpine.js. Added a "Payments" FAQ block (the mockup's category grid links to one but no content block existed in source) |
+| Wellness Journal — index | `journal.html` | Review | `page-journal.php`, slug `/journal/`. Featured article = most recent post; grid = next 3; category bar links to real WP categories (Recipes/Science/Lifestyle/Community/Tradition) styled via `archive.php` |
+| Wellness Journal — single post template | `journal.html` (article layout) | Review | `single.php`. No dedicated single-post mockup exists in source (journal.html is index-only) — layout is a reasonable extrapolation using the same tokens (hero image, eyebrow, `.entry-content` prose styling, related articles) |
+| The Ritual / Subscription info page | `ritual.html` / `subscription.html` | Review | `page-subscription.php`, slug `/subscription/`. Built from `subscription.html` (chosen over `ritual.html` — near-identical; "Subscription" is the nav label used sitewide, see `DESIGN_SYSTEM.md` §0) |
+| Shipping Policy | none (new content) | Review | `/shipping-policy/`, using base `page.php`. Original draft copy, marked "pending final legal review" on-page |
+| Refund Policy | none (new content) | Review | `/refund-policy/`, using base `page.php`. Original draft copy, marked "pending final legal review" on-page |
+| Privacy Policy | none (new content) | Review | `/privacy-policy/`, using base `page.php`. Original draft copy, marked "pending final legal review" on-page |
+| Terms of Service | none (new content) | Review | `/terms-of-service/`, using base `page.php`. Original draft copy, marked "pending final legal review" on-page |
 
 ## WooCommerce Pages (Phases 5–6)
 

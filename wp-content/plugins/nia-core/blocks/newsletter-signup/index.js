@@ -44,6 +44,7 @@
 							options: [
 								{ label: __( 'Dark (inverse-surface)', 'nia-core' ), value: 'dark' },
 								{ label: __( 'Light (surface-container-low)', 'nia-core' ), value: 'light' },
+								{ label: __( 'Primary (solid brand color)', 'nia-core' ), value: 'primary' },
 							],
 							onChange: set( 'variant' ),
 						} ),

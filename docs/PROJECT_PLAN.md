@@ -2,7 +2,7 @@
 
 Complete execution roadmap. Phases are sequential and gated — **each phase must be fully complete and approved before the next begins.** Every task completed updates `PAGE_STATUS.md`, `CUSTOMIZATIONS.md`, or `AUTOMATIONS.md` as applicable (see each phase's "Docs to update" line).
 
-**Status: client-directed sequencing exception (2026-07-07).** Phase 1's three blocked items — Hostinger account, WPML license, business email/SMTP — are **on hold** at the client's request, prioritizing static marketing pages first. **Phase 2 (Theme Foundation) is complete** (2026-07-07) — none of it depended on the three held items. **Phase 3 (Global Components) is complete** (2026-07-07) — header/footer, 8 button variants, card system, forms, 5 custom Gutenberg blocks, and the 6-template Elementor Saved Template library are all built and verified; the two dashboard-sidebar rows are deliberately deferred to Phase 6 (see `PAGE_STATUS.md`). Awaiting go-ahead to start Phase 4 (Static Marketing Pages). Phase 4 pages can be built and reviewed, but **cannot reach "Completed" status** without WPML for the Kiswahili version required by `PAGE_STATUS.md`'s language rule — pages will stay at "Review" until WPML is unblocked. This is a known, accepted consequence of the hold, not an oversight.
+**Status: client-directed sequencing exception (2026-07-07).** Phase 1's three blocked items — Hostinger account, WPML license, business email/SMTP — are **on hold** at the client's request, prioritizing static marketing pages first. **Phase 2 (Theme Foundation) is complete** (2026-07-07) — none of it depended on the three held items. **Phase 3 (Global Components) is complete** (2026-07-07) — header/footer, 8 button variants, card system, forms, 5 custom Gutenberg blocks, and the 6-template Elementor Saved Template library are all built and verified; the two dashboard-sidebar rows are deliberately deferred to Phase 6 (see `PAGE_STATUS.md`). **Phase 4 (Static Marketing Pages) is English-complete** (2026-07-07) — all 10 pages are live and reviewed against their mockups; every page is capped at **Review**, not Completed, pending WPML (R20), real photography (R6), and legal review of the 4 policy pages' draft copy (R22). Awaiting go-ahead for Phase 5 (WooCommerce Integration).
 
 ---
 
@@ -86,30 +86,32 @@ Complete execution roadmap. Phases are sequential and gated — **each phase mus
 
 ## Phase 4 — Static Marketing Pages
 
+**Status: English builds complete (2026-07-07).** Started immediately after Phase 3, per the client's sequencing exception (see top of file).
+
 **Goal:** every page that only displays information is fully built, matching its mockup, **before any WooCommerce engineering begins.** These pages require assembling already-built global components (Phase 3) plus page-specific content — minimal new engineering.
 
 Pages (source mockup → WordPress page):
-| Page | Source mockup |
-|---|---|
-| Homepage | `index.html` |
-| Our Heritage / About | `about-nia.html` (**not** `about.html` — see `DESIGN_SYSTEM.md` §0) |
-| Contact | `contact.html` (Fluent Forms for the form itself) |
-| FAQ | `faqs.html` (re-themed to canonical palette — see below) |
-| Wellness Journal (blog index + single) | `journal.html` |
-| The Ritual / Subscription info page | `ritual.html` **or** `subscription.html` — build once, not both (see `DESIGN_SYSTEM.md` §0) |
-| Shipping Policy | new content, styled per system, no mockup |
-| Refund Policy | new content, styled per system, no mockup |
-| Privacy Policy | new content, styled per system, no mockup |
-| Terms of Service | new content, styled per system, no mockup |
+| Page | Source mockup | Status |
+|---|---|---|
+| Homepage | `index.html` | [x] `page-homepage.php`, static front page |
+| Our Heritage / About | `about-nia.html` (**not** `about.html` — see `DESIGN_SYSTEM.md` §0) | [x] `page-about.php` |
+| Contact | `contact.html` (Fluent Forms for the form itself) | [x] `page-contact.php` + Fluent Form #5 |
+| FAQ | `faqs.html` (re-themed to canonical palette — see below) | [x] `page-faq.php`, re-themed, Alpine.js accordion |
+| Wellness Journal (blog index + single) | `journal.html` | [x] `page-journal.php` + `single.php` + `archive.php` (categories) |
+| The Ritual / Subscription info page | `ritual.html` **or** `subscription.html` — build once, not both (see `DESIGN_SYSTEM.md` §0) | [x] `page-subscription.php`, built from `subscription.html` |
+| Shipping Policy | new content, styled per system, no mockup | [x] draft copy, base `page.php` |
+| Refund Policy | new content, styled per system, no mockup | [x] draft copy, base `page.php` |
+| Privacy Policy | new content, styled per system, no mockup | [x] draft copy, base `page.php` |
+| Terms of Service | new content, styled per system, no mockup | [x] draft copy, base `page.php` |
 
-- Re-theme any page sourced from the stale olive-gold palette (FAQ) to the canonical orange-gold token set during transcription — do not port `#735c00`-based colors.
-- Populate real copy (client-provided) and replace all AI-placeholder photography with real product/lifestyle photography (see `RISKS.md`) — do not launch a page with placeholder images.
-- SEO basics per page (title, meta description, Rank Math focus keyword) even though full SEO pass is Phase 10.
-- **Build the Kiswahili translation for each page via WPML alongside the English version** — do not treat translation as a post-launch afterthought; confirm translation workflow/timeline with the client first (see `RISKS.md`).
+- [x] Re-theme any page sourced from the stale olive-gold palette (FAQ) to the canonical orange-gold token set during transcription — do not port `#735c00`-based colors. Verified zero `#735c00` occurrences in FAQ's rendered output.
+- [ ] Populate real copy (client-provided) and replace all AI-placeholder photography with real product/lifestyle photography (see `RISKS.md` R6) — **not done this pass**: real client copy was not available, so mockup copy was transcribed as-is (English) and the 4 policy pages used original draft text (R22); all photography is the mockups' own placeholder imagery, now self-hosted rather than hotlinked, but still not real photos. Do not launch without addressing both.
+- [ ] SEO basics per page (title, meta description, Rank Math focus keyword) — **not done this pass**, deferred to the full SEO pass (Phase 10) or a follow-up within Phase 4 once real copy exists.
+- [ ] **Build the Kiswahili translation for each page via WPML alongside the English version** — **blocked**, WPML is on hold (R20). English builds proceeded per the client's explicit sequencing exception; Kiswahili is the reason every page below is capped at Review.
 
-**Exit criteria:** every page above is live on staging in **both English and Kiswahili**, responsive, matches its mockup's design language, uses real content and real imagery, and is client-reviewed/approved.
+**Exit criteria — partially met (2026-07-07):** every page above is live on staging in English, responsive, and matches its mockup's design language (verified via HTTP 200 + content-presence checks on all 10 pages, WPCS clean on all files touched). **Not yet met:** Kiswahili versions (blocked on WPML), real content/imagery (blocked on client assets), and client review/approval of this batch.
 
-**Docs to update:** `PAGE_STATUS.md` (every static page moves Not Started → In Progress → Review → Completed as work proceeds).
+**Docs to update:** `PAGE_STATUS.md` (every static page moves Not Started → In Progress → Review → Completed as work proceeds) — done, all 10 pages now at Review.
 
 ---
 

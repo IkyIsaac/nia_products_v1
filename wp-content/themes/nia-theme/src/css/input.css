@@ -100,6 +100,59 @@
   .radio-card {
     @apply flex items-center justify-between p-6 border border-warm-grey cursor-pointer transition-all duration-300 hover:border-on-background peer-checked:border-on-background peer-checked:bg-surface-container;
   }
+
+  /* Fluent Forms re-theme — the plugin ships its own default styling;
+     override its stable class names so any form (Contact, future forms)
+     matches the .editorial-input pattern instead of FF's default look
+     (PAGE_STATUS.md — Contact page, Phase 4). */
+  .fluentform .ff-el-input--label {
+    @apply font-label-md text-label-md text-outline uppercase tracking-normal mb-2 block;
+  }
+  .fluentform input.ff-el-form-control,
+  .fluentform select.ff-el-form-control,
+  .fluentform textarea.ff-el-form-control {
+    @apply editorial-input font-body-md text-body-md py-2 rounded-none shadow-none;
+  }
+  .fluentform .ff-btn-submit {
+    @apply btn-primary rounded-none normal-case;
+    font-size: inherit;
+    letter-spacing: inherit;
+  }
+
+  /* Wellness Journal post body (single.php) — no typography plugin
+     dependency (ARCHITECTURE.md §2, "no extra deps unless needed");
+     sensible spacing/type for editor-authored prose. */
+  .entry-content {
+    @apply font-body-lg text-body-lg text-on-surface leading-relaxed;
+  }
+  .entry-content p {
+    @apply mb-6;
+  }
+  .entry-content h2 {
+    @apply font-headline-md text-headline-md text-on-background mt-12 mb-6;
+  }
+  .entry-content h3 {
+    @apply font-headline-sm text-headline-sm text-on-background mt-10 mb-4;
+  }
+  .entry-content ul,
+  .entry-content ol {
+    @apply mb-6 pl-6 space-y-2;
+  }
+  .entry-content ul {
+    @apply list-disc;
+  }
+  .entry-content ol {
+    @apply list-decimal;
+  }
+  .entry-content a {
+    @apply text-primary underline hover:text-primary-fixed-dim;
+  }
+  .entry-content img {
+    @apply w-full h-auto my-10;
+  }
+  .entry-content blockquote {
+    @apply font-headline-md text-headline-md italic text-primary border-l-2 border-primary pl-8 my-10;
+  }
 }
 
 @layer utilities {

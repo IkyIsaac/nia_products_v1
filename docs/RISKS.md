@@ -31,9 +31,9 @@ LiteSpeed Cache (from the original stack list) only functions on LiteSpeed-based
 **Resolution:** production host confirmed as **Hostinger Business/Cloud (WooCommerce plan)** — runs LiteSpeed Enterprise natively with WooCommerce pre-configured, NVMe SSD, and a built-in CDN, so the originally-planned LiteSpeed Cache plugin is used as-is; the WP Rocket/WP Super Cache fallback is no longer needed. See `PLUGIN_DECISIONS.md`, `ARCHITECTURE.md` §10/§12.
 
 ### R6 — Placeholder photography must be fully replaced
-**Severity:** Medium. **Status:** Open.
+**Severity:** Medium. **Status:** Open (Phase 4 images self-hosted 2026-07-07, still placeholder content).
 Every image across all 13 mockups is AI-generated placeholder photography (hosted on Google's `lh3.googleusercontent.com`), each with a *prompt description* rather than a real `alt` attribute. None of this is licensed or launch-ready. Real product photography, lifestyle photography, and the founder's portrait must be sourced/shot before Phase 4/6 pages can be marked Completed.
-**Mitigation:** called out explicitly as an exit criterion in `PROJECT_PLAN.md` Phase 4 and Phase 6 — no page should move to Completed in `PAGE_STATUS.md` with placeholder imagery still in place. Client needs to commission/provide photography early, since this can become a schedule bottleneck if left until the end.
+**Mitigation:** called out explicitly as an exit criterion in `PROJECT_PLAN.md` Phase 4 and Phase 6 — no page should move to Completed in `PAGE_STATUS.md` with placeholder imagery still in place. Client needs to commission/provide photography early, since this can become a schedule bottleneck if left until the end. **Update 2026-07-07:** while building Phase 4, the placeholder images were downloaded from Google's hosting and self-hosted instead (theme assets for fixed page images, media library for blog post featured images) — this fixes the "hotlinking a third party at runtime" problem but the images themselves are still the same AI-generated placeholders, not real photography. Filenames are labeled "— placeholder" in the media library to make them easy to find and swap later.
 
 ### R7 — Multi-currency settlement: Selcom may only settle in TZS regardless of display currency
 **Severity:** Medium. **Status:** Open (scope escalated 2026-07-07 — client confirmed TZS + USD switching is a hard requirement, not an optional nice-to-have, which makes this risk more concrete than the original "may need a second payment path" framing).
@@ -111,6 +111,11 @@ WPML (and its WooCommerce Multilingual & Multicurrency add-on) is a paid, licens
 **Severity:** Low-Medium (schedule blocker). **Status:** Open — On Hold (client decision 2026-07-07: prioritize static marketing pages first; not needed until transactional email matters, i.e. by Phase 5/8).
 FluentSMTP is installed, but cannot be configured or tested without a real business mailbox and its SMTP credentials (host, port, username, password/API key) from the client.
 **Mitigation:** client to provide/create a business mailbox (Google Workspace, Hostinger mail, or other) and share SMTP credentials; configure and send a verified test email once received.
+
+### R22 — Policy pages (Shipping, Refund, Privacy, Terms) contain original draft copy, not client-provided legal text
+**Severity:** Medium (legal exposure if launched as-is). **Status:** Open (2026-07-07).
+No mockup or client-provided text existed for these 4 pages (`PROJECT_PLAN.md` Phase 4 lists them as "new content, no mockup"). Reasonable draft copy was written to match the site's established facts (Tanzania delivery timelines from the FAQ, Mobile Money/card payments, subscription pause/skip/cancel terms, TZS/USD pricing) so the pages aren't blank, but this is **not** reviewed legal text — it's a placeholder in the same sense as the photography (R6), just for words instead of images. Each page visibly states "pending final legal review" so it isn't mistaken for final copy.
+**Mitigation:** client (or client's legal counsel) must review and approve/replace the copy on all 4 pages before removing the on-page disclaimer or marking them Completed in `PAGE_STATUS.md`.
 
 ---
 

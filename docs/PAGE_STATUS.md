@@ -41,25 +41,27 @@ Update this file the moment a page's status changes — do not batch updates at 
 
 ## Global Components (Phase 3 — prerequisite for all pages above)
 
+**Phase 3 — done 2026-07-07.** Built in `wp-content/themes/nia-theme` (header/footer/CSS/forms) and the new `wp-content/plugins/nia-core` (Gutenberg blocks). Verified via a dev-only style-guide page (`template-style-guide.php`, page `/nia-style-guide/`, noindexed) showing every button/card/block variant, plus header/footer tested live on the homepage, shop archive, and a 404. All 8 theme files + 23 plugin files pass WPCS clean.
+
 | Component | Status | Notes |
 |---|---|---|
-| Header / desktop nav | Not Started | |
-| Mobile nav (hamburger/drawer) | Not Started | Client-approved pattern (2026-07-07) — see `DESIGN_SYSTEM.md` §7, build directly |
-| Currency switcher (TZS/USD, header control) | Not Started | Client-requested (2026-07-07) — now provided via WPML's Multicurrency add-on, see `ARCHITECTURE.md` §11 |
-| Language switcher (EN/SW, header control) | Not Started | Client-requested (2026-07-08) — text-label only, no flag icons, see `DESIGN_SYSTEM.md` §10 |
-| Elementor Saved Template library (on-brand components) | Not Started | Client-requested (2026-07-08) — mirrors the Gutenberg block set, see `ARCHITECTURE.md` §2a |
-| Footer (full) | Not Started | |
-| Footer (minimal, checkout variant) | Not Started | |
-| Button variants (8 total) | Not Started | See `DESIGN_SYSTEM.md` §4 |
-| Product card | Not Started | Shared between Homepage featured + Shop archive; count-agnostic (any product, any category) |
-| Category filter/tab row (Shop archive) | Not Started | Client-requested flexibility (2026-07-08) — reuses journal/FAQ tab pattern, see `DESIGN_SYSTEM.md` §14 item 12 |
-| `.sunlight-shadow` card utility | Not Started | |
-| Testimonial block | Not Started | |
-| Benefit/Icon Grid block ("92 Minerals" pattern) | Not Started | |
-| CTA Banner block | Not Started | |
-| Newsletter Signup block | Not Started | |
-| Dashboard sidebar (desktop) | Not Started | |
-| Dashboard sidebar (mobile equivalent) | Not Started | Client-approved (2026-07-07) — same hamburger/drawer mechanism as main nav, see `DESIGN_SYSTEM.md` §7 |
+| Header / desktop nav | Completed (2026-07-07) | `header.php` — glassmorphic fixed nav, `wp_nav_menu` with `Nia_Nav_Walker` for active-state (falls back to static links until a 'primary' menu is assigned in Phase 4) |
+| Mobile nav (hamburger/drawer) | Completed (2026-07-07) | Alpine.js-driven full-screen overlay drawer in `header.php`, per client-approved pattern — see `DESIGN_SYSTEM.md` §7 |
+| Currency switcher (TZS/USD, header control) | Completed — UI only (2026-07-07) | Static `TZS ▾` control in header; real conversion logic via WPML Multicurrency lands in Phase 5, see `ARCHITECTURE.md` §11 |
+| Language switcher (EN/SW, header control) | Completed — UI only (2026-07-07) | Static `EN`/`SW` text-label control in header; wired to WPML in Phase 5, see `DESIGN_SYSTEM.md` §10 |
+| Elementor Saved Template library (on-brand components) | Completed (2026-07-07) | 6 templates (Hero, Benefit Grid, Testimonial, CTA Banner, Newsletter, Promo Tile) in Elementor's Template Library, built via `_elementor_data` + Global Colors/Fonts (Phase 2) + compiled Tailwind classes on widgets — see `ARCHITECTURE.md` §2a for the `css_classes`/`_css_classes` key distinction discovered while building these |
+| Footer (full) | Completed (2026-07-07) | `footer.php` — 4-col grid (brand, Discover, Support, Newsletter), verbatim copyright line |
+| Footer (minimal, checkout variant) | Completed (2026-07-07) | `footer-minimal.php`, auto-selected via `is_checkout()` (same mechanism as the header) |
+| Button variants (8 total) | Completed (2026-07-07) | `.btn-primary`, `.btn-outline-light`, `.btn-outline-dark`, `.btn-inverse-surface`, `.btn-primary-filled`, `.btn-link`, `.btn-icon-circle`, `.btn-radio-card` in `src/css/input.css` — see `DESIGN_SYSTEM.md` §4 |
+| Product card | CSS foundation only (2026-07-07) | `.card-product`/`.card-product-image` classes built; the actual WooCommerce template wiring (count-agnostic, any category) is Phase 5/6 work, see `ARCHITECTURE.md` §9a |
+| Category filter/tab row (Shop archive) | Not Started | Shop-archive-specific — deferred to Phase 5/6 alongside the Shop archive itself; reuses the journal/FAQ tab pattern, see `DESIGN_SYSTEM.md` §14 item 12 |
+| `.sunlight-shadow` card utility | Completed (Phase 2) | Already existed as of Phase 2; card variants built on top of it this phase (`.card-journal`, `.card-testimonial`, `.card-subscription-tier`, `.card-app`) |
+| Testimonial block | Completed (2026-07-07) | Custom Gutenberg block `nia/testimonial` (nia-core plugin) — star rating, italic pull-quote, avatar/name/role, repeater |
+| Benefit/Icon Grid block ("92 Minerals" pattern) | Completed (2026-07-07) | Custom Gutenberg block `nia/benefit-grid` — icon + title + body repeater, flexible item count |
+| CTA Banner block | Completed (2026-07-07) | Custom Gutenberg block `nia/cta-banner` — 3 background variants, up to 2 CTAs |
+| Newsletter Signup block | Completed — UI only (2026-07-07) | Custom Gutenberg block `nia/newsletter-signup` — email capture UI only, no backend wired yet |
+| Dashboard sidebar (desktop) | Deferred to Phase 6 | No My Account page exists yet to attach it to (My Account is Phase 6, not Phase 4's priority); building it now would be unverifiable. Reuses the same hamburger/drawer mechanism already built for the main nav |
+| Dashboard sidebar (mobile equivalent) | Deferred to Phase 6 | Same reasoning as above — see `DESIGN_SYSTEM.md` §7 for the approved pattern to apply when Phase 6 is reached |
 
 ## Excluded from build
 

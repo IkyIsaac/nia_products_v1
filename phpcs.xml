@@ -3,7 +3,7 @@
     <description>WPCS ruleset for the Nia Theme and Nia Core plugin. Excludes WordPress core, third-party plugins, and vendor code.</description>
 
     <file>./wp-content/themes/nia-theme</file>
-    <!-- ./wp-content/plugins/nia-core added once the plugin is scaffolded (ARCHITECTURE.md §4) -->
+    <file>./wp-content/plugins/nia-core</file>
 
 
     <exclude-pattern>*/node_modules/*</exclude-pattern>
@@ -19,6 +19,14 @@
     <rule ref="WordPress"/>
     <rule ref="WordPress-Extra"/>
     <rule ref="WordPress-Docs"/>
+
+    <!-- index.asset.php is WordPress core's own required naming convention
+         for block.json's automatic script-dependency discovery (looked up
+         as "{handle}.asset.php" next to index.js) — not a WPCS violation
+         to "fix" by renaming. -->
+    <rule ref="WordPress.Files.FileName.NotHyphenatedLowercase">
+        <exclude-pattern>*/blocks/*/index.asset.php</exclude-pattern>
+    </rule>
 
     <config name="minimum_supported_wp_version" value="6.5"/>
 

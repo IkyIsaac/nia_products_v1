@@ -1,0 +1,26 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "nia/benefit-grid",
+	"title": "Nia Benefit Grid",
+	"category": "nia-blocks",
+	"icon": "grid-view",
+	"description": "Flexible icon + title + body grid — the \"92 Minerals\" pattern, reused on Homepage/PDP/About with different copy (DESIGN_SYSTEM.md §14).",
+	"textdomain": "nia-core",
+	"attributes": {
+		"eyebrow": { "type": "string", "default": "" },
+		"heading": { "type": "string", "default": "" },
+		"intro": { "type": "string", "default": "" },
+		"items": {
+			"type": "array",
+			"default": [
+				{ "icon": "energy_savings_leaf", "title": "Sustained Vitality", "body": "Boost your energy levels naturally without the crash of caffeine." },
+				{ "icon": "ecg_heart", "title": "Natural Healing", "body": "High in anti-inflammatory properties and potassium chloride." },
+				{ "icon": "diamond", "title": "Mineral Rich", "body": "Containing 92 of the 102 minerals your body needs." }
+			]
+		}
+	},
+	"supports": { "html": false },
+	"render": "file:./render.php",
+	"editorScript": "file:./index.js"
+}

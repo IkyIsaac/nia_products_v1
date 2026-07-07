@@ -23,6 +23,83 @@
     grid-template-columns: repeat(12, 1fr);
     gap: 24px;
   }
+
+  /* DESIGN_SYSTEM.md §4 — 8 button variants, codified once instead of
+     repeating hand-composed utility strings per template/block. */
+  .btn-primary {
+    @apply px-10 py-5 bg-on-background text-off-white font-label-lg text-label-lg uppercase tracking-widest hover:bg-primary transition-all duration-300 active:scale-[0.98] inline-block text-center;
+  }
+  .btn-outline-light {
+    @apply px-10 py-5 border border-on-background text-on-background font-label-lg text-label-lg uppercase tracking-widest hover:bg-on-background hover:text-off-white transition-all duration-300 active:scale-[0.98] inline-block text-center;
+  }
+  .btn-outline-dark {
+    @apply px-10 py-5 border border-off-white text-off-white font-label-lg text-label-lg uppercase tracking-widest hover:bg-off-white hover:text-on-background transition-all duration-300 active:scale-[0.98] inline-block text-center;
+  }
+  .btn-inverse-surface {
+    @apply px-10 py-5 bg-inverse-surface text-off-white font-label-lg text-label-lg uppercase tracking-widest hover:bg-primary transition-all duration-300 active:scale-[0.98] inline-block text-center;
+  }
+  .btn-primary-filled {
+    @apply px-10 py-5 bg-primary text-on-primary-container font-label-lg text-label-lg uppercase tracking-widest hover:bg-primary-fixed-dim transition-all duration-300 active:scale-[0.98] inline-block text-center;
+  }
+  .btn-link {
+    @apply border-b border-on-background pb-1 font-label-lg text-label-lg uppercase tracking-widest hover:text-primary hover:border-primary transition-all duration-300 inline-block;
+  }
+  .btn-icon-circle {
+    @apply w-10 h-10 rounded-full border border-warm-grey flex items-center justify-center hover:bg-primary hover:text-off-white transition-all duration-300;
+  }
+  .btn-radio-card {
+    @apply block p-4 border border-warm-grey rounded-lg cursor-pointer transition-all duration-300;
+  }
+
+  /* DESIGN_SYSTEM.md §5 — card treatments. */
+  .card-product {
+    @apply relative overflow-hidden aspect-[4/5] bg-warm-grey;
+  }
+  .card-product-image {
+    @apply w-full h-full object-cover transition-transform duration-300 group-hover:scale-105;
+  }
+  .card-journal {
+    @apply relative overflow-hidden aspect-[4/5] bg-warm-grey sunlight-shadow;
+  }
+  .card-testimonial {
+    @apply sunlight-shadow bg-off-white p-12 flex flex-col justify-between;
+  }
+  .card-subscription-tier {
+    @apply sunlight-shadow bg-off-white p-10;
+  }
+  .card-subscription-tier--popular {
+    @apply bg-inverse-surface text-off-white;
+  }
+  .card-app {
+    @apply rounded-xl border border-warm-grey sunlight-shadow bg-white;
+  }
+
+  /* DESIGN_SYSTEM.md §10 — badges (semantic usage rules, §1). */
+  .badge-subscribe {
+    @apply inline-block bg-tertiary-container/90 text-on-tertiary-container px-3 py-1 font-label-md text-label-md uppercase tracking-widest;
+  }
+  .badge-recommended {
+    @apply inline-block bg-primary text-off-white px-3 py-1 font-label-md text-label-md uppercase tracking-widest;
+  }
+
+  /* DESIGN_SYSTEM.md §9 — forms. Underline input is the dominant pattern
+     (newsletter, contact, select, textarea); .editorial-input keeps the
+     literal name already used across the mockups. */
+  .editorial-input {
+    @apply border-0 border-b border-warm-grey bg-transparent rounded-none pl-0 transition-colors duration-300 focus:border-b-on-background focus:outline-none focus:ring-0 focus:shadow-none;
+  }
+  .editorial-input.input-error {
+    @apply border-b-error;
+  }
+  .input-helper-error {
+    @apply font-label-md text-label-md text-error mt-1 block;
+  }
+
+  /* Custom radio-card selector — purchase-type (PDP), payment method
+     (Checkout). CSS-only sr-only+peer pattern (no JS toggle — DESIGN_SYSTEM.md §9). */
+  .radio-card {
+    @apply flex items-center justify-between p-6 border border-warm-grey cursor-pointer transition-all duration-300 hover:border-on-background peer-checked:border-on-background peer-checked:bg-surface-container;
+  }
 }
 
 @layer utilities {
@@ -43,5 +120,11 @@
     .no-print {
       display: none !important;
     }
+  }
+
+  /* Alpine.js FOUC guard (ARCHITECTURE.md §3) — hides x-cloak'd elements
+     (mobile drawer) until Alpine initializes. */
+  [x-cloak] {
+    display: none !important;
   }
 }

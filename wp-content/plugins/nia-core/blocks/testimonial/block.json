@@ -1,0 +1,22 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "nia/testimonial",
+	"title": "Nia Testimonial",
+	"category": "nia-blocks",
+	"icon": "format-quote",
+	"description": "Star rating + italic pull-quote + avatar/name/role, grid of 1-2+ testimonials (DESIGN_SYSTEM.md §5/§14).",
+	"textdomain": "nia-core",
+	"attributes": {
+		"heading": { "type": "string", "default": "" },
+		"items": {
+			"type": "array",
+			"default": [
+				{ "quote": "Since starting the subscription, my energy levels throughout the workday have transformed.", "name": "FATIMA M.", "role": "ARCHITECT, DAR ES SALAAM", "avatarUrl": "", "rating": 5 }
+			]
+		}
+	},
+	"supports": { "html": false },
+	"render": "file:./render.php",
+	"editorScript": "file:./index.js"
+}

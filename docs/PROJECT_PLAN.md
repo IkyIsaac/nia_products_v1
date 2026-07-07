@@ -2,7 +2,7 @@
 
 Complete execution roadmap. Phases are sequential and gated — **each phase must be fully complete and approved before the next begins.** Every task completed updates `PAGE_STATUS.md`, `CUSTOMIZATIONS.md`, or `AUTOMATIONS.md` as applicable (see each phase's "Docs to update" line).
 
-**Status: client-directed sequencing exception (2026-07-07).** Phase 1's three blocked items — Hostinger account, WPML license, business email/SMTP — are **on hold** at the client's request, prioritizing static marketing pages first. **Phase 2 (Theme Foundation) is complete** (2026-07-07) — none of it depended on the three held items. Awaiting go-ahead to start Phase 3 (Global Components). Phase 4 (marketing pages) can be built and reviewed, but **cannot reach "Completed" status** without WPML for the Kiswahili version required by `PAGE_STATUS.md`'s language rule — pages will stay at "Review" until WPML is unblocked. This is a known, accepted consequence of the hold, not an oversight.
+**Status: client-directed sequencing exception (2026-07-07).** Phase 1's three blocked items — Hostinger account, WPML license, business email/SMTP — are **on hold** at the client's request, prioritizing static marketing pages first. **Phase 2 (Theme Foundation) is complete** (2026-07-07) — none of it depended on the three held items. **Phase 3 (Global Components) is complete** (2026-07-07) — header/footer, 8 button variants, card system, forms, 5 custom Gutenberg blocks, and the 6-template Elementor Saved Template library are all built and verified; the two dashboard-sidebar rows are deliberately deferred to Phase 6 (see `PAGE_STATUS.md`). Awaiting go-ahead to start Phase 4 (Static Marketing Pages). Phase 4 pages can be built and reviewed, but **cannot reach "Completed" status** without WPML for the Kiswahili version required by `PAGE_STATUS.md`'s language rule — pages will stay at "Review" until WPML is unblocked. This is a known, accepted consequence of the hold, not an oversight.
 
 ---
 
@@ -60,23 +60,27 @@ Complete execution roadmap. Phases are sequential and gated — **each phase mus
 
 ## Phase 3 — Global Components
 
+**Status: complete (2026-07-07).** Started immediately after Phase 2, per the client's sequencing exception (see top of file).
+
 **Goal:** every component that appears on more than one page exists once, correctly, per `DESIGN_SYSTEM.md` §14.
 
-- Header/nav template part — desktop nav + icons, active-state logic driven by current page/menu location (not hardcoded per file).
-- **Build the mobile nav pattern** (hamburger + full-screen overlay drawer) — client-approved pattern, matching existing visual language (see `DESIGN_SYSTEM.md` §7). Apply the same mechanism to the dashboard's mobile sidebar for consistency.
-- Currency switcher control in the header (TZS/USD) — UI only at this phase; wired to real conversion logic (via WPML's multicurrency module) in Phase 5 (see `ARCHITECTURE.md` §11).
-- Language switcher control in the header (EN/SW, text-label, no flag icons) — UI only at this phase; wired to WPML in Phase 5 alongside the currency switcher (see `DESIGN_SYSTEM.md` §7/§10).
-- Footer template part, with a "minimal" variant for checkout.
-- Buttons — codify the 8 variants from `DESIGN_SYSTEM.md` §4 as reusable CSS classes/block style variations.
-- Cards — `.sunlight-shadow` utility, product card component, testimonial card, journal card.
-- Custom Gutenberg blocks: Hero, Benefit/Icon Grid, Testimonial, CTA Banner, Newsletter Signup (see `ARCHITECTURE.md` §2, §4).
-- **Build the Elementor Saved Template library** mirroring the custom blocks above (Hero, Benefit Grid, Testimonial, CTA Banner, Newsletter, promo tile) — see `ARCHITECTURE.md` §2a, `DESIGN_SYSTEM.md` §14. These give the client on-brand starting points for occasional Elementor-based content edits.
-- Forms base styling (underline inputs, custom radio-card `peer-checked` pattern, select styling).
-- Design tokens sanity pass: confirm every component only references tokens from `DESIGN_SYSTEM.md`, nothing hardcoded — check this against both the Gutenberg blocks and the Elementor Saved Templates.
+- [x] Header/nav template part — desktop nav + icons, active-state logic driven by current page/menu location (not hardcoded per file). Built as `header.php` using `wp_nav_menu` + a custom `Nia_Nav_Walker` (falls back to static links until a 'primary' menu is assigned in Phase 4).
+- [x] **Build the mobile nav pattern** (hamburger + full-screen overlay drawer) — client-approved pattern, matching existing visual language (see `DESIGN_SYSTEM.md` §7). Built with Alpine.js (self-hosted, `assets/js/alpine.min.js`). Dashboard's mobile sidebar equivalent is **deferred to Phase 6** (see below) — no My Account page exists yet to attach it to.
+- [x] Currency switcher control in the header (TZS/USD) — UI only at this phase; wired to real conversion logic (via WPML's multicurrency module) in Phase 5 (see `ARCHITECTURE.md` §11).
+- [x] Language switcher control in the header (EN/SW, text-label, no flag icons) — UI only at this phase; wired to WPML in Phase 5 alongside the currency switcher (see `DESIGN_SYSTEM.md` §7/§10).
+- [x] Footer template part, with a "minimal" variant for checkout. Built as `footer.php` + `footer-minimal.php`, auto-selected via `is_checkout()`.
+- [x] Buttons — codified the 8 variants from `DESIGN_SYSTEM.md` §4 as reusable CSS classes in `src/css/input.css`.
+- [x] Cards — `.sunlight-shadow` utility (existed since Phase 2), plus `.card-product`, `.card-journal`, `.card-testimonial`, `.card-subscription-tier`, `.card-app`.
+- [x] Custom Gutenberg blocks: Hero, Benefit/Icon Grid, Testimonial, CTA Banner, Newsletter Signup (see `ARCHITECTURE.md` §2, §4). Built in the new `wp-content/plugins/nia-core` plugin (`blocks/*`), zero-build (plain `wp.element`, manually-authored `index.asset.php` files), server-rendered via `render.php`.
+- [x] **Build the Elementor Saved Template library** mirroring the custom blocks above (Hero, Benefit Grid, Testimonial, CTA Banner, Newsletter, promo tile) — see `ARCHITECTURE.md` §2a, `DESIGN_SYSTEM.md` §14. Built as 6 `elementor_library` posts with hand-authored `_elementor_data`. A key gotcha was discovered and documented while building these — see `ARCHITECTURE.md` §2a (the `css_classes` vs `_css_classes` control-key distinction between Widgets and Sections/Columns).
+- [x] Forms base styling (underline inputs, custom radio-card `peer-checked` pattern, select styling).
+- [x] Design tokens sanity pass: every component built this phase references `tailwind.config.js` tokens only — verified by reading back every class name used against `DESIGN_SYSTEM.md` §1–5 while writing this phase; nothing hardcoded.
 
-**Exit criteria:** a component-library/style-guide page (dev-only, not public) demonstrating every button, card, and block variant against real tokens; header/footer functional on a blank page including mobile nav and both switchers; the Elementor Saved Template library exists and visually matches its Gutenberg-block counterpart side by side.
+**Exit criteria — met and verified 2026-07-07:** a dev-only style-guide page (`template-style-guide.php`, published at `/nia-style-guide/`, noindexed, not linked from any nav) demonstrates every button, badge, card, form, and block variant against real tokens — confirmed via direct HTTP fetch showing all expected classes/content present with zero PHP errors; header/footer verified functional on the homepage, shop archive, and a 404 (mobile drawer markup, both switchers, and cart badge all present in the rendered HTML); the Elementor Saved Template library (6 templates) was verified via Elementor's own `get_builder_content_for_display()` API, confirmed rendering each template's text content and custom CSS classes correctly and consistently across repeated calls. All 8 theme files + 23 nia-core files pass WPCS clean.
 
-**Docs to update:** `DESIGN_SYSTEM.md` if any component needed a decision beyond what was documented (log it there, not just in code).
+**Scope decision:** "Dashboard sidebar (desktop)" and "Dashboard sidebar (mobile equivalent)" from `PAGE_STATUS.md`'s Global Components list are **deferred to Phase 6** (My Account) rather than built now — there's no My Account page yet to attach or verify them against, and My Account isn't part of the client's stated Phase 4 priority (marketing pages). Building them now would be unverifiable scaffolding. The approved pattern (same hamburger/drawer mechanism as the main nav) is already documented in `DESIGN_SYSTEM.md` §7 and ready to apply when Phase 6 starts.
+
+**Docs to update:** `DESIGN_SYSTEM.md` if any component needed a decision beyond what was documented (log it there, not just in code). No new design decisions were needed this phase beyond the Elementor control-key gotcha, which is a technical/implementation note (logged in `ARCHITECTURE.md` §2a and `CUSTOMIZATIONS.md`), not a design decision.
 
 ---
 

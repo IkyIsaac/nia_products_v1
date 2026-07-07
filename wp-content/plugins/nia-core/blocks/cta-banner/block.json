@@ -1,0 +1,23 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "nia/cta-banner",
+	"title": "Nia CTA Banner",
+	"category": "nia-blocks",
+	"icon": "megaphone",
+	"description": "Centered heading + body + up to two CTAs, with a background-color variant (DESIGN_SYSTEM.md §14).",
+	"textdomain": "nia-core",
+	"attributes": {
+		"heading": { "type": "string", "default": "Join the Ritual" },
+		"body": { "type": "string", "default": "" },
+		"primaryText": { "type": "string", "default": "Shop the Collection" },
+		"primaryUrl": { "type": "string", "default": "#" },
+		"secondaryText": { "type": "string", "default": "" },
+		"secondaryUrl": { "type": "string", "default": "#" },
+		"variant": { "type": "string", "default": "light" },
+		"showDecorative": { "type": "boolean", "default": true }
+	},
+	"supports": { "html": false },
+	"render": "file:./render.php",
+	"editorScript": "file:./index.js"
+}

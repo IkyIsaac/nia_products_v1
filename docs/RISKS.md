@@ -50,9 +50,9 @@ FluentSMTP (or any SMTP relay) is built for transactional volume/deliverability,
 Classes referencing a `headline-sm` type-scale token appear in the mockup markup but were never defined in any file's Tailwind config — an authoring bug in the source files themselves. **Resolution:** proposed value (24px/1.3/500) retained, see `DESIGN_SYSTEM.md` §2.
 
 ### R10 — Duplicate/legacy nav-target inconsistency
-**Severity:** Low. **Status:** Open.
+**Severity:** Low. **Status:** Resolved (2026-07-07).
 The "Wellness" nav link points to `journal.html` on some pages and `ritual.html`/`subscription.html` on others across the mockups — an authoring inconsistency, not an intentional IA decision.
-**Mitigation:** decide final information architecture during Phase 3 header build (recommend: "Wellness" → Journal, with Subscription/Ritual reachable via its own nav item or a shop-page CTA, since conflating the two under one label is confusing) — get this into the nav structure once, not per-page.
+**Resolution:** implemented as recommended in `functions.php`'s `nia_theme_primary_nav_fallback()` — "Wellness" → Journal, "Subscription" is its own nav item, matching the majority mockup pattern (`index.html`, `dashboard.html`, etc.). This is the fallback used until a real 'primary' menu is assigned in Phase 4; the same 4-link structure (Shop/About/Subscription/Wellness) should be used when that menu is created.
 
 ### R14 — Exchange rate management for the TZS/USD switcher
 **Severity:** Low-Medium. **Status:** Open.

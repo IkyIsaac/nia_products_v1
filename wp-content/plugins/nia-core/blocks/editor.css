@@ -1,0 +1,26 @@
+/* Editor-only styling for the custom block library's repeater rows and
+   placeholders. Never loaded on the front end (ARCHITECTURE.md §4). */
+
+.nia-block-editor-notice {
+	font-weight: bold;
+	text-transform: uppercase;
+	letter-spacing: 0.1em;
+	font-size: 11px;
+	color: #6b3a6b;
+	margin-bottom: 8px;
+}
+
+.nia-repeater-item {
+	border: 1px dashed #d8c88a;
+	padding: 12px;
+	margin-bottom: 12px;
+	border-radius: 4px;
+}
+
+.nia-repeater-item__remove {
+	margin-top: 8px;
+}
+
+.nia-repeater-add {
+	margin-top: 4px;
+}

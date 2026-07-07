@@ -1,0 +1,21 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "nia/newsletter-signup",
+	"title": "Nia Newsletter Signup",
+	"category": "nia-blocks",
+	"icon": "email",
+	"description": "Eyebrow + heading + body + email capture, reused in-footer and as a standalone section (DESIGN_SYSTEM.md §14). UI only — form processing is wired up when the email/marketing integration is built.",
+	"textdomain": "nia-core",
+	"attributes": {
+		"eyebrow": { "type": "string", "default": "" },
+		"heading": { "type": "string", "default": "Weekly insight into the art of living well." },
+		"body": { "type": "string", "default": "" },
+		"buttonText": { "type": "string", "default": "Subscribe" },
+		"microcopy": { "type": "string", "default": "Respecting your privacy. Unsubscribe at any time." },
+		"variant": { "type": "string", "default": "dark" }
+	},
+	"supports": { "html": false },
+	"render": "file:./render.php",
+	"editorScript": "file:./index.js"
+}

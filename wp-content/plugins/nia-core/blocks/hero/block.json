@@ -1,0 +1,26 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "nia/hero",
+	"title": "Nia Hero",
+	"category": "nia-blocks",
+	"icon": "cover-image",
+	"description": "Full-height image hero with eyebrow, heading, body, and up to two CTA buttons (DESIGN_SYSTEM.md §14).",
+	"textdomain": "nia-core",
+	"attributes": {
+		"eyebrow": { "type": "string", "default": "" },
+		"heading": { "type": "string", "default": "Nature’s Gold, Rooted in Wellness." },
+		"body": { "type": "string", "default": "" },
+		"imageUrl": { "type": "string", "default": "" },
+		"imageAlt": { "type": "string", "default": "" },
+		"imageId": { "type": "number", "default": 0 },
+		"primaryText": { "type": "string", "default": "Shop the Collection" },
+		"primaryUrl": { "type": "string", "default": "#" },
+		"secondaryText": { "type": "string", "default": "" },
+		"secondaryUrl": { "type": "string", "default": "#" },
+		"minHeight": { "type": "string", "default": "screen" }
+	},
+	"supports": { "html": false },
+	"render": "file:./render.php",
+	"editorScript": "file:./index.js"
+}

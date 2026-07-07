@@ -1,0 +1,6 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Phase 2 adds the compiled @font-face rules for self-hosted Playfair
+   Display + Montserrat + Material Symbols Outlined here (ARCHITECTURE.md §3). */

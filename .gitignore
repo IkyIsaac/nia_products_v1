@@ -1,0 +1,41 @@
+# WordPress core (this repo tracks the custom theme + Nia Core plugin + docs, not core)
+/wp-admin/
+/wp-includes/
+/wp-*.php
+!/wp-config-sample.php
+/xmlrpc.php
+/license.txt
+/readme.html
+/index.php
+
+# Uploads and cache — never version user media or generated cache
+/wp-content/uploads/
+/wp-content/cache/
+/wp-content/upgrade/
+/wp-content/upgrade-temp-backup/
+
+# Third-party plugins/themes not authored by us — tracked as a dependency list, not committed source
+/wp-content/plugins/*
+!/wp-content/plugins/nia-core/
+/wp-content/themes/*
+!/wp-content/themes/nia-theme/
+
+# Secrets
+wp-config.php
+.env
+
+# Build tooling
+node_modules/
+npm-debug.log*
+
+# WPCS / Composer
+vendor/
+composer.lock
+
+# OS / editor cruft
+.DS_Store
+.vscode/
+*.log
+
+# Local by Flywheel
+local-xdebuginfo.php

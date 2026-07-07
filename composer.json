@@ -1,0 +1,17 @@
+{
+    "name": "nia-nutrition/nia-build",
+    "description": "Dev tooling for Nia Nutrition — WPCS linting only. Not a runtime dependency manifest.",
+    "type": "project",
+    "private": true,
+    "require-dev": {
+        "squizlabs/php_codesniffer": "^3.9",
+        "wp-coding-standards/wpcs": "^3.1",
+        "phpcompatibility/phpcompatibility-wp": "^2.1",
+        "dealerdirect/phpcodesniffer-composer-installer": "^1.0"
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    }
+}

@@ -20,20 +20,19 @@ module.exports = {
   // (Cart page's trust row) — they never appear in any PHP/JS file we scan,
   // so they must be listed explicitly.
   safelist: [
-    'wc-block-cart-item',
+    'wc-block-cart-items__row',
     'wc-block-cart-item__image',
-    'wc-block-cart-item__product-name',
+    'wc-block-components-product-name',
     'wc-block-components-quantity-selector',
     'wc-block-components-quantity-selector__button',
     'wc-block-cart__totals-title',
     'wc-block-components-totals-wrapper',
-    'wc-proceed-to-checkout',
     'wc-block-cart__submit-button',
     'wc-block-components-checkout-place-order-button',
     'nia-cart-trust-row',
     'wc-block-checkout__sidebar',
     'wc-block-components-checkout-step__heading',
-    'wc-block-components-radio-control__option--checked-option',
+    'wc-block-components-radio-control__option-checked',
     'woocommerce-orders-table',
   ],
   theme: {

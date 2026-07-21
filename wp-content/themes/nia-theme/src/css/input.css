@@ -228,13 +228,13 @@
      WooCommerce Blocks' own stable class names rather than a template
      override, since the block-based Cart renders its own markup
      (ARCHITECTURE.md §6). */
-  .wc-block-cart-item {
+  .wc-block-cart-items__row {
     @apply border-b border-warm-grey py-8;
   }
   .wc-block-cart-item__image img {
     @apply sunlight-shadow;
   }
-  .wc-block-cart-item__product-name {
+  .wc-block-components-product-name {
     @apply font-headline-md text-headline-sm text-on-background;
   }
   .wc-block-components-quantity-selector {
@@ -247,7 +247,7 @@
   .wc-block-components-totals-wrapper {
     @apply font-label-lg text-label-lg uppercase tracking-widest;
   }
-  .wc-proceed-to-checkout .wc-block-cart__submit-button,
+  .wc-block-cart__submit-button,
   .wc-block-components-checkout-place-order-button {
     @apply btn-primary rounded-none normal-case;
     font-size: inherit;
@@ -270,7 +270,7 @@
   .wc-block-components-checkout-step__heading {
     @apply font-headline-sm text-headline-sm text-on-background;
   }
-  .wc-block-components-radio-control__option--checked-option {
+  .wc-block-components-radio-control__option-checked {
     @apply border-on-background bg-surface-container;
   }
 

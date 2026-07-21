@@ -7,12 +7,20 @@
 /license.txt
 /readme.html
 /index.php
+/wp-content/index.php
 
 # Uploads and cache — never version user media or generated cache
 /wp-content/uploads/
 /wp-content/cache/
 /wp-content/upgrade/
 /wp-content/upgrade-temp-backup/
+
+# Plugin-generated runtime data — not source, never version
+/wp-content/updraft/
+/wp-content/wflogs/
+
+# Client-supplied design mockups (reference only, has its own nested .git)
+/nia-products/
 
 # Third-party plugins/themes not authored by us — tracked as a dependency list, not committed source
 /wp-content/plugins/*

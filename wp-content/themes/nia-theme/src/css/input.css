@@ -194,9 +194,66 @@
   /* PROJECT_PLAN.md Phase 6 — PDP's single Add to Bag button reuses
      WooCommerce's own woocommerce_template_single_add_to_cart() (real
      add-to-cart submit) — restyled to match .btn-primary since WC's default
-     button markup can't take our component class directly. */
+     button markup can't take our component class directly. Quantity input
+     and button are laid out as one row (items-stretch) so the bare number
+     input doesn't float above the button unstyled/misaligned. */
+  .nia-pdp-add-to-cart form.cart {
+    @apply flex items-stretch gap-4;
+  }
+  .nia-pdp-add-to-cart .quantity {
+    @apply w-24 flex-shrink-0;
+  }
+  .nia-pdp-add-to-cart .quantity .qty {
+    @apply w-full h-full border border-warm-grey rounded-none px-4 font-body-md text-body-md text-center focus:outline-none focus:border-on-background transition-colors duration-300;
+  }
   .nia-pdp-add-to-cart .single_add_to_cart_button {
-    @apply btn-primary w-full block;
+    @apply btn-primary flex-1 block;
+  }
+
+  /* Account forms (myaccount/form-login.php, form-register,
+     form-lost-password, form-reset-password, form-edit-address,
+     form-edit-account) — WooCommerce's default markup is unstyled raw
+     labels/inputs; this is the shared input/label treatment across all of
+     them so it doesn't have to be hand-repeated in each override. */
+  .nia-form-label {
+    @apply block font-label-md text-label-md uppercase tracking-widest text-on-surface-variant mb-2;
+  }
+  .nia-form-input {
+    @apply w-full border border-warm-grey rounded-none px-4 py-3 font-body-md text-body-md bg-transparent focus:outline-none focus:border-on-background transition-colors duration-300 appearance-none;
+  }
+  select.nia-form-input {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23615B54'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z' clip-rule='evenodd' /%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1.1em;
+    padding-right: 2.75rem;
+  }
+
+  /* My Account forms (edit-address, edit-account) share the login/register
+     card treatment (bg-off-white sunlight-shadow rounded-xl) and the same
+     .nia-form-input/.nia-form-label fields, scoped so WooCommerce's own
+     generated field markup (woocommerce_form_field()) doesn't need each
+     input's class attribute hand-edited. */
+  .nia-account-form .form-row {
+    @apply mb-6;
+  }
+  .nia-account-form .form-row:last-of-type {
+    @apply mb-0;
+  }
+  .nia-account-form fieldset {
+    @apply mt-4 pt-8 border-t border-warm-grey;
+  }
+  .nia-account-form fieldset legend {
+    @apply font-label-lg text-label-lg uppercase tracking-widest mb-6 w-full;
+  }
+  .nia-account-form .form-row-wide {
+    @apply md:col-span-2;
+  }
+  .nia-account-form .required {
+    @apply text-primary;
+  }
+  .nia-account-form .description {
+    @apply block font-body-md text-sm text-on-surface-variant mt-2;
   }
 
   /* PROJECT_PLAN.md Phase 6 — Reviews & Ratings (content-single-product.php,

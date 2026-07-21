@@ -33,7 +33,7 @@ Status values: **Not Started** · **In Progress** · **Review** · **Completed**
 
 | Customization | Mechanism | Why not a hook (if override) | Status |
 |---|---|---|---|
-| Cart line-item layout (thumbnail + stepper + price row) | CSS-only re-theme of the Cart block's own stable class names (`.wc-block-cart-item`, `.wc-block-components-quantity-selector`, etc.) — no override needed, the block markup already achieved this | — | Completed (2026-07-08) |
+| Cart line-item layout (thumbnail + stepper + price row) | CSS-only re-theme of the Cart block's own stable class names (`.wc-block-cart-items__row`, `.wc-block-components-quantity-selector`, etc.) — no override needed, the block markup already achieved this | — | Completed (2026-07-08), class names corrected 2026-07-21 (see below) |
 | "Complete Your Ritual" upsell section | WooCommerce's real native `woocommerce/product-collection` cross-sells block (already present in the Cart page's default content), relabeled and restyled via a block-content edit + CSS; cross-sell relationships set via real `_crosssell_ids` product meta | — | Completed (2026-07-08) — card layout is the block's native vertical grid (restyled on-brand), not a pixel-exact rebuild of the mockup's horizontal card layout — see note below |
 | Promo code field parity between Cart and Checkout | Native WooCommerce Cart block already includes a coupon field by default | — | Completed (2026-07-08) — no work needed, already present |
 | Trust signal row (SSL, delivery, payment icons) | Block-content edit: a `core/group` + `core/paragraph` blocks added as siblings after the Cart block's checkout button, styled via CSS (`nia-cart-trust-row` classes) | Cart block has no native "trust row" slot | Completed (2026-07-08) |

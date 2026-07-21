@@ -153,6 +153,139 @@
   .entry-content blockquote {
     @apply font-headline-md text-headline-md italic text-primary border-l-2 border-primary pl-8 my-10;
   }
+
+  /* PROJECT_PLAN.md Phase 6 — shared transition shorthand used across
+     dashboard cards/links instead of repeating the same utility string. */
+  .premium-transition {
+    @apply transition-all duration-300;
+  }
+
+  /* PROJECT_PLAN.md Phase 6 — Shop archive quick-add hover reveal.
+     content-product.php's overlay has no group-hover utility inline;
+     .product-image-container is the hover trigger, transcribed verbatim
+     from nia-products/collection.html's own reveal rule. */
+  .product-image-container:hover .quick-add-overlay {
+    @apply opacity-100 translate-y-0;
+  }
+
+  /* PROJECT_PLAN.md Phase 6 — product grid columns (Shop archive + Related
+     Products). Disabling WooCommerce's default stylesheet (functions.php,
+     woocommerce_enqueue_styles) removed the only source of .products grid
+     CSS the site had. Scoped to `ul.products` specifically, not a bare
+     `.products` class, since WooCommerce's related-products wrapper
+     <section> also carries a literal "products" class token that a bare
+     selector would wrongly match too. */
+  ul.products {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter;
+  }
+
+  /* PROJECT_PLAN.md Phase 6 — My Account dashboard sidebar (dashboard.html's
+     dark gradient, transcribed verbatim). */
+  .side-nav-gradient {
+    background: linear-gradient(180deg, #313030 0%, #1c1b1b 100%);
+  }
+
+  /* PROJECT_PLAN.md Phase 6 — honest empty-state card shared by the My
+     Rituals and Wellness Profile endpoints (class-nia-woocommerce.php). */
+  .nia-account-empty-state {
+    @apply bg-off-white p-8 sunlight-shadow rounded-xl flex flex-col items-center text-center gap-4 premium-transition;
+  }
+
+  /* PROJECT_PLAN.md Phase 6 — PDP's single Add to Bag button reuses
+     WooCommerce's own woocommerce_template_single_add_to_cart() (real
+     add-to-cart submit) — restyled to match .btn-primary since WC's default
+     button markup can't take our component class directly. */
+  .nia-pdp-add-to-cart .single_add_to_cart_button {
+    @apply btn-primary w-full block;
+  }
+
+  /* PROJECT_PLAN.md Phase 6 — Reviews & Ratings (content-single-product.php,
+     Nia_Reviews). Review cards sit inside a plain <ol>, so list-style needs
+     resetting explicitly (comment_class() doesn't do this for us). */
+  .nia-review-card {
+    list-style: none;
+  }
+  .nia-helpful-btn.is-liked {
+    @apply text-primary;
+  }
+
+  /* PROJECT_PLAN.md Phase 6 — CSS-only 5-star rating picker for "Write a
+     review" (Nia_Reviews::comment_form_args()). Stars are authored
+     highest-to-lowest in the DOM (flex-row-reverse flips them back to
+     left-to-right visually) so a plain `~` general-sibling selector can
+     fill "this star and everything before it" with no JS — the same
+     sr-only+peer approach already used for the PDP purchase-option radios. */
+  .nia-star-picker__star {
+    @apply cursor-pointer text-warm-grey premium-transition;
+  }
+  .nia-star-picker input:checked ~ label.nia-star-picker__star,
+  .nia-star-picker label.nia-star-picker__star:hover,
+  .nia-star-picker label.nia-star-picker__star:hover ~ label.nia-star-picker__star {
+    @apply text-primary;
+  }
+
+  /* PROJECT_PLAN.md Phase 6 — Cart (my-cart.html), re-themed via
+     WooCommerce Blocks' own stable class names rather than a template
+     override, since the block-based Cart renders its own markup
+     (ARCHITECTURE.md §6). */
+  .wc-block-cart-item {
+    @apply border-b border-warm-grey py-8;
+  }
+  .wc-block-cart-item__image img {
+    @apply sunlight-shadow;
+  }
+  .wc-block-cart-item__product-name {
+    @apply font-headline-md text-headline-sm text-on-background;
+  }
+  .wc-block-components-quantity-selector {
+    @apply border border-warm-grey rounded-none;
+  }
+  .wc-block-components-quantity-selector__button {
+    @apply text-on-background hover:text-primary;
+  }
+  .wc-block-cart__totals-title,
+  .wc-block-components-totals-wrapper {
+    @apply font-label-lg text-label-lg uppercase tracking-widest;
+  }
+  .wc-proceed-to-checkout .wc-block-cart__submit-button,
+  .wc-block-components-checkout-place-order-button {
+    @apply btn-primary rounded-none normal-case;
+    font-size: inherit;
+    letter-spacing: inherit;
+  }
+
+  /* PROJECT_PLAN.md Phase 6 — Cart trust row, added as a sibling block in
+     the Cart page's own block content (not template code — see
+     CUSTOMIZATIONS.md). */
+  .nia-cart-trust-row {
+    @apply flex flex-wrap items-center justify-center gap-8 py-8 border-t border-warm-grey mt-8 text-on-surface-variant font-label-md text-label-md uppercase tracking-widest;
+  }
+
+  /* PROJECT_PLAN.md Phase 6 — Checkout (checkout.html), re-themed to the
+     canonical orange-gold palette via WooCommerce Blocks' stable class
+     names (the source mockup used the stale olive-gold set). */
+  .wc-block-checkout__sidebar {
+    @apply bg-off-white sunlight-shadow rounded-xl p-8 border border-warm-grey;
+  }
+  .wc-block-components-checkout-step__heading {
+    @apply font-headline-sm text-headline-sm text-on-background;
+  }
+  .wc-block-components-radio-control__option--checked-option {
+    @apply border-on-background bg-surface-container;
+  }
+
+  /* PROJECT_PLAN.md Phase 6 — Order History ("app card" treatment),
+     targeting WooCommerce's native orders-table class names only, no
+     template override needed. */
+  .woocommerce-orders-table {
+    @apply sunlight-shadow rounded-xl overflow-hidden bg-off-white;
+  }
+  .woocommerce-orders-table thead {
+    @apply bg-surface-container-low uppercase font-label-md text-label-md text-on-surface-variant;
+  }
+  .woocommerce-orders-table tbody tr {
+    @apply border-t border-warm-grey;
+  }
 }
 
 @layer utilities {

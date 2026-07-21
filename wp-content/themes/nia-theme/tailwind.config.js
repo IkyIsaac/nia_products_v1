@@ -8,7 +8,33 @@ module.exports = {
   content: [
     './**/*.php',
     './src/**/*.js',
+    './assets/js/*.js',
     '../../plugins/nia-core/blocks/**/*.php',
+    '../../plugins/nia-core/includes/**/*.php',
+  ],
+  // PROJECT_PLAN.md Phase 6 — Tailwind's JIT engine tree-shakes @layer
+  // components rules the same as utilities: a selector that never appears
+  // as literal text in a scanned content file gets silently dropped, even
+  // though it's hand-authored CSS. These target WooCommerce Blocks' own
+  // React-rendered markup (Cart/Checkout) or database-stored block content
+  // (Cart page's trust row) — they never appear in any PHP/JS file we scan,
+  // so they must be listed explicitly.
+  safelist: [
+    'wc-block-cart-item',
+    'wc-block-cart-item__image',
+    'wc-block-cart-item__product-name',
+    'wc-block-components-quantity-selector',
+    'wc-block-components-quantity-selector__button',
+    'wc-block-cart__totals-title',
+    'wc-block-components-totals-wrapper',
+    'wc-proceed-to-checkout',
+    'wc-block-cart__submit-button',
+    'wc-block-components-checkout-place-order-button',
+    'nia-cart-trust-row',
+    'wc-block-checkout__sidebar',
+    'wc-block-components-checkout-step__heading',
+    'wc-block-components-radio-control__option--checked-option',
+    'woocommerce-orders-table',
   ],
   theme: {
     extend: {

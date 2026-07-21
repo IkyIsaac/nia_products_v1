@@ -18,6 +18,7 @@ define( 'NIA_CORE_URI', plugin_dir_url( __FILE__ ) );
 
 require_once NIA_CORE_DIR . 'includes/class-nia-blocks.php';
 require_once NIA_CORE_DIR . 'includes/class-nia-woocommerce.php';
+require_once NIA_CORE_DIR . 'includes/class-nia-reviews.php';
 
 /**
  * Boot the plugin's registered subsystems.
@@ -25,5 +26,6 @@ require_once NIA_CORE_DIR . 'includes/class-nia-woocommerce.php';
 function nia_core_init() {
 	new Nia_Blocks();
 	new Nia_Woocommerce();
+	new Nia_Reviews();
 }
 add_action( 'plugins_loaded', 'nia_core_init' );

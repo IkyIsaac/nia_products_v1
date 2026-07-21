@@ -73,6 +73,21 @@ function nia_woocommerce_wrapper_end() {
 }
 
 /**
+ * Every WooCommerce-rendered page is fully re-themed with this project's own
+ * Tailwind classes (Phase 6) — WooCommerce's own default frontend stylesheets
+ * (woocommerce-layout.css, woocommerce.css, and especially
+ * woocommerce-smallscreen.css's higher-specificity mobile-only rules) were
+ * still being enqueued alongside ours and fighting with it: product card
+ * badges/quick-add overlays losing their absolute positioning and collapsing
+ * into normal document flow, stray list-style bullets on card titles, etc.
+ * `woocommerce_enqueue_styles` is WooCommerce's own sanctioned filter for a
+ * theme that supplies 100% of its own styling. Doesn't touch wc-blocks.css
+ * (Cart/Checkout blocks' own handle, unaffected by this filter) — that one's
+ * still needed and already re-themed separately in input.css.
+ */
+add_filter( 'woocommerce_enqueue_styles', '__return_empty_array' );
+
+/**
  * Compiled Tailwind CSS + self-hosted fonts. No CDN requests
  * (ARCHITECTURE.md §3) — fonts.css is generated in Phase 2's font step.
  */

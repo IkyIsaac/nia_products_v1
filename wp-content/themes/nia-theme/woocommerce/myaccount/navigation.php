@@ -39,8 +39,11 @@ $nia_menu_items = wc_get_account_menu_items();
 </button>
 
 <div x-data="{ dashboardMenuOpen: false }" @nia-dashboard-menu-toggle.window="dashboardMenuOpen = true">
-	<!-- Desktop sidebar -->
-	<aside class="hidden md:flex w-72 side-nav-gradient flex-col fixed left-0 top-32 bottom-0 z-30 p-base overflow-y-auto">
+	<!-- Desktop sidebar. Sticky (not fixed) so it's confined to this page's
+	     own flex row (my-account.php) and stops before the footer, instead
+	     of a viewport-fixed element permanently covering whatever scrolls
+	     underneath it — including the footer. -->
+	<aside class="hidden md:flex w-72 side-nav-gradient flex-col sticky top-32 self-start h-[calc(100vh-8rem)] z-30 p-base overflow-y-auto">
 		<nav class="woocommerce-MyAccount-navigation mt-8 flex flex-col gap-2" aria-label="<?php esc_attr_e( 'Account pages', 'nia-theme' ); ?>">
 			<?php foreach ( $nia_menu_items as $nia_endpoint => $nia_label ) : ?>
 				<a

@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
 <div class="flex min-h-screen">
 	<?php do_action( 'woocommerce_account_navigation' ); ?>
 
-	<div class="woocommerce-MyAccount-content flex-1 md:ml-72 px-margin-mobile md:px-margin-desktop py-12">
+	<div class="woocommerce-MyAccount-content flex-1 px-margin-mobile md:px-margin-desktop py-12">
 		<div class="max-w-6xl mx-auto">
 			<?php do_action( 'woocommerce_account_content' ); ?>
 		</div>

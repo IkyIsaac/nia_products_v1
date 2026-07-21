@@ -35,8 +35,42 @@ function nia_theme_setup() {
 			'footer'  => __( 'Footer Navigation', 'nia-theme' ),
 		)
 	);
+
+	// PROJECT_PLAN.md Phase 5 — declares this theme as WooCommerce-ready and
+	// enables the product gallery's zoom/lightbox/slider behavior.
+	add_theme_support( 'woocommerce' );
+	add_theme_support( 'wc-product-gallery-zoom' );
+	add_theme_support( 'wc-product-gallery-lightbox' );
+	add_theme_support( 'wc-product-gallery-slider' );
 }
 add_action( 'after_setup_theme', 'nia_theme_setup' );
+
+/**
+ * WooCommerce's own default content wrapper (a generic <div id="primary">)
+ * doesn't match this theme's <main> markup used by page.php/archive.php.
+ * Swap it for our own so shop/product/cart/checkout/account pages sit inside
+ * the same header/footer chrome as every other page — ARCHITECTURE.md §9a.
+ * Full visual styling of the content itself is Phase 6; this only fixes the
+ * wrapper so WooCommerce's default markup renders inside our theme correctly.
+ */
+remove_action( 'woocommerce_before_main_content', 'woocommerce_output_content_wrapper', 10 );
+remove_action( 'woocommerce_after_main_content', 'woocommerce_output_content_wrapper_end', 10 );
+add_action( 'woocommerce_before_main_content', 'nia_woocommerce_wrapper_start', 10 );
+add_action( 'woocommerce_after_main_content', 'nia_woocommerce_wrapper_end', 10 );
+
+/**
+ * Opening half of the WooCommerce content wrapper — see above.
+ */
+function nia_woocommerce_wrapper_start() {
+	echo '<main class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-section-gap">';
+}
+
+/**
+ * Closing half of the WooCommerce content wrapper — see above.
+ */
+function nia_woocommerce_wrapper_end() {
+	echo '</main>';
+}
 
 /**
  * Compiled Tailwind CSS + self-hosted fonts. No CDN requests

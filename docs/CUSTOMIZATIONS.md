@@ -14,8 +14,8 @@ Status values: **Not Started** · **In Progress** · **Review** · **Completed**
 |---|---|---|---|
 | Category archive (Shop/Collection page) — paginated, count-agnostic | WooCommerce native `taxonomy-product_cat.php` / Products block, styled to match `collection.html` | — | Not Started |
 | Category filter/tab row on Shop archive | Custom markup querying `get_terms('product_cat')`, styled per the existing journal/FAQ tab pattern (`DESIGN_SYSTEM.md` §4 item H) | — | Not Started |
-| Homepage "Featured Products" section sourced from native Featured-product flag | `wc_get_featured_product_ids()` / `meta_query` on `_featured`, capped at a display limit | — | Not Started |
-| Category display ordering (admin-controlled) | Category-ordering plugin (see `PLUGIN_DECISIONS.md`) — no native WooCommerce equivalent for reordering `product_cat` terms | — | Not Started |
+| Homepage "Featured Products" section sourced from native Featured-product flag | `wc_get_featured_product_ids()` capped at 4 via `WP_Query( 'post__in' )` in `page-homepage.php` | — | Completed (2026-07-08) |
+| Category display ordering (admin-controlled) | Category-ordering plugin (`taxonomy-terms-order`, see `PLUGIN_DECISIONS.md`) — already installed/active (Phase 1); admin can drag-reorder the 4 categories from Products → Categories any time | — | Completed (2026-07-08) — plugin active, categories created; no reorder needed yet since only 4 exist |
 | Product card badge ("Subscribe & Save", "Best Seller") | Hook: `woocommerce_before_shop_loop_item_title` | — | Not Started |
 | Quick-add hover overlay on Shop archive | Hook + custom markup via `woocommerce_after_shop_loop_item` | — | Not Started |
 | Currency display format standardized to `"45,000 TZS"` | Filter: `woocommerce_price_format` / `wc_price` args | — | Not Started |
@@ -49,6 +49,7 @@ Status values: **Not Started** · **In Progress** · **Review** · **Completed**
 | Customization | Mechanism | Why not a hook (if override) | Status |
 |---|---|---|---|
 | Sidebar navigation (Overview, My Rituals, Order History, Wellness Profile, Settings, Logout) | Hook: `woocommerce_account_menu_items` (reorder/add custom endpoints) | — | Not Started |
+| Downloads tab removed from My Account nav (catalog is 100% physical products, no downloadables planned) | Filter: `woocommerce_account_menu_items` in `Nia_Woocommerce` class (`nia-core/includes/class-nia-woocommerce.php`) | — | Completed (2026-07-08) |
 | Mobile sidebar equivalent (not in any mockup) | New: to be designed in Phase 3, implemented as a hook-driven template part | — | Not Started |
 | "My Rituals" (subscriptions) endpoint | Custom endpoint via `woocommerce_account_menu_items` + `add_rewrite_endpoint`, rendering `nia_subscription` CPT data | Custom data source (not core WooCommerce), but registration itself is the standard hook-based endpoint pattern | Not Started |
 | Order History styling (rounded "app card" treatment) | CSS only, template override only if markup structure blocks it | Attempt hook/CSS first | Not Started |
@@ -67,6 +68,7 @@ Status values: **Not Started** · **In Progress** · **Review** · **Completed**
 | Customization | Mechanism | Why not a hook (if override) | Status |
 |---|---|---|---|
 | Selcom payment gateway | New `WC_Payment_Gateway` subclass registered via `woocommerce_payment_gateways` filter | — | Not Started |
+| **Temporary placeholder gateway** — WooCommerce core's built-in "Cash on Delivery" enabled so a full order can be placed in test mode ahead of Selcom (Phase 7) | Core `WC_Gateway_COD`, enabled via its own settings (`woocommerce_cod_settings`), no custom code | Not a hook/override — flagging here so it isn't mistaken for the real payment method; **must be disabled once Selcom ships in Phase 7** | Completed (2026-07-08), temporary |
 | Selcom webhook → order status update | Custom REST route (`register_rest_route`) + `woocommerce_order_status_changed` | — | Not Started |
 | Failed payment handling/messaging | Hook: `woocommerce_order_status_failed` | — | Not Started |
 

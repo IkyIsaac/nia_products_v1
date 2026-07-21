@@ -30,16 +30,26 @@ Update this file the moment a page's status changes — do not batch updates at 
 
 ## WooCommerce Pages (Phases 5–6)
 
+**Phase 5 (WooCommerce Integration) — core plumbing done 2026-07-08.** Catalog is **dummy/placeholder data** — see the note at the end of this section for exactly where the admin edits it going forward. Styling to match each page's mockup is Phase 6, not yet started.
+
 | Page | Source mockup | Status | Notes |
 |---|---|---|---|
-| Shop / Collection archive (category-aware, paginated) | `collection.html` | Not Started | Product card + badge + quick-add overlay + category filter/tab row (corrected 2026-07-08: 4 categories, not 4 products, variable count each — see `ARCHITECTURE.md` §9a) |
-| Product Detail Page (shared template for any product, any category) | `product.html` | Not Started | Purchase-type radio (one-time vs. subscription) |
-| Product category setup (4 initial: Seamoss Powder, Seamoss Gel, Raw Seamoss, Seamoss Capsules) | none — WooCommerce taxonomy setup | Not Started | Admin-manageable; count of categories and products per category expected to change |
-| Cart | `my-cart.html` | Not Started | |
-| Checkout | `checkout.html` | Not Started | Re-theme from stale olive-gold palette; wire real Selcom methods in Phase 7 |
-| My Account / Customer Dashboard | `dashboard.html` | Not Started | Sidebar nav; mobile equivalent uses client-approved hamburger/drawer pattern (see `DESIGN_SYSTEM.md` §7) |
-| My Account → My Rituals (subscriptions) | `dashboard.html` (subscriptions panel) | Not Started | Depends on Phase 9 |
-| My Account → Order History | `dashboard.html` (order history panel) | Not Started | |
+| Shop / Collection archive (category-aware, paginated) | `collection.html` | In Progress | WooCommerce's default archive template renders, paginated, category-aware. Product card badge/quick-add overlay and the category filter/tab row are Phase 6 (corrected 2026-07-08: 4 categories, not 4 products, variable count each — see `ARCHITECTURE.md` §9a) |
+| Product Detail Page (shared template for any product, any category) | `product.html` | In Progress | WooCommerce's default single-product template renders correctly for all 8 dummy products. Purchase-type radio (one-time vs. subscription) and the full custom layout are Phase 6 |
+| Product category setup (4 initial: Seamoss Powder, Seamoss Gel, Raw Seamoss, Seamoss Capsules) | none — WooCommerce taxonomy setup | Completed (2026-07-08) | 4 categories created via Products → Categories, each with a thumbnail + description. 8 dummy products seeded (2 per category), 4 marked Featured, cross-sell relationships set. Admin-manageable — see note below |
+| Cart | `my-cart.html` | In Progress | WooCommerce's default block-based Cart, functionally verified end-to-end. Visual re-theme is Phase 6 |
+| Checkout | `checkout.html` | In Progress | WooCommerce's default block-based Checkout, functionally verified end-to-end (VAT, placeholder shipping, placeholder COD payment). Re-theme from the stale olive-gold palette and Selcom methods (Phase 7) still pending |
+| My Account / Customer Dashboard | `dashboard.html` | In Progress | Default WooCommerce My Account page; Downloads tab removed (no downloadable products planned). Sidebar nav + mobile equivalent (client-approved hamburger/drawer pattern, see `DESIGN_SYSTEM.md` §7) is Phase 6 |
+| My Account → My Rituals (subscriptions) | `dashboard.html` (subscriptions panel) | Not Started | Depends on Phase 9; custom endpoint not yet built |
+| My Account → Order History | `dashboard.html` (order history panel) | In Progress | Native "Orders" endpoint functional against a real test order; "app card" restyle is Phase 6 |
+
+**Where the admin manages the catalog day-to-day (no developer involvement needed):**
+- **Products → Categories:** add/rename/delete/reorder categories, edit each category's thumbnail and description (the `taxonomy-terms-order` plugin, already active, adds drag-and-drop reordering here).
+- **Products → All Products / Add New:** add/edit/delete products, set price (TZS — store base currency), stock, images, and mark/unmark the "Featured" checkbox in the Publish box (drives the homepage's Featured Products section automatically — see `ARCHITECTURE.md` §9a).
+- **WooCommerce → Orders:** view/manage all customer orders (HPOS).
+- **WooCommerce → Settings → Payments:** currently only "Cash on Delivery" is enabled as a placeholder — swapped for the real Selcom gateway in Phase 7.
+- **WooCommerce → Settings → Shipping:** one placeholder flat-rate method ("Standard Delivery," 5,000 TZS, applies everywhere) — the client should confirm real shipping zones/rates before launch.
+- All of the above requires zero code changes; this is the same "admin manages content, developer manages code" split already established for the Journal (blog posts) in Phase 4.
 
 ## Global Components (Phase 3 — prerequisite for all pages above)
 

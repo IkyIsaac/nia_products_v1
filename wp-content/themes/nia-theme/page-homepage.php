@@ -9,10 +9,11 @@
  * render_block() for the repeating sections (Hero, Benefit Grid, Newsletter)
  * so those stay in sync with the same blocks used elsewhere.
  *
- * Featured Products below is a static placeholder (4 hardcoded cards) —
- * Phase 5 replaces it with a live WooCommerce Featured-product query
- * (ARCHITECTURE.md §9a). All photography is AI-generated placeholder
- * imagery pending real product/lifestyle photos (RISKS.md R6).
+ * Featured Products queries WooCommerce's native Featured-product flag
+ * (ARCHITECTURE.md §9a) — the admin marks/unmarks products as Featured from
+ * the ordinary product edit screen, capped at 4 for this grid's layout.
+ * All photography is AI-generated placeholder imagery pending real
+ * product/lifestyle photos (RISKS.md R6).
  *
  * @package Nia_Theme
  */
@@ -66,62 +67,70 @@ echo render_block( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEsca
 	</div>
 </section>
 
-<!-- Featured Products (static placeholder — Phase 5 wires a live WooCommerce Featured-product query, ARCHITECTURE.md §9a) -->
-<section class="py-section-gap bg-surface px-margin-mobile md:px-margin-desktop overflow-hidden">
-	<div class="max-w-container-max mx-auto">
-		<div class="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
-			<div>
-				<span class="font-label-lg text-primary uppercase tracking-[0.2em] mb-4 block"><?php esc_html_e( 'Selection', 'nia-theme' ); ?></span>
-				<h2 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg"><?php esc_html_e( 'Core Collection', 'nia-theme' ); ?></h2>
-			</div>
-			<a class="btn-link" href="<?php echo esc_url( nia_theme_shop_url() ); ?>"><?php esc_html_e( 'View All Products', 'nia-theme' ); ?></a>
-		</div>
-		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
-			<?php
-			$nia_featured_placeholder = array(
-				array(
-					'eyebrow' => __( 'VITALITY', 'nia-theme' ),
-					'title'   => __( 'Seamoss Powder', 'nia-theme' ),
-					'price'   => '45,000 TZS',
-					'image'   => 'product-powder.jpg',
-				),
-				array(
-					'eyebrow' => __( 'HYDRATION', 'nia-theme' ),
-					'title'   => __( 'Seamoss Gel', 'nia-theme' ),
-					'price'   => '55,000 TZS',
-					'image'   => 'product-gel.jpg',
-				),
-				array(
-					'eyebrow' => __( 'PURE EARTH', 'nia-theme' ),
-					'title'   => __( 'Raw Seamoss', 'nia-theme' ),
-					'price'   => '35,000 TZS',
-					'image'   => 'product-raw.jpg',
-				),
-				array(
-					'eyebrow' => __( 'DAILY RITUAL', 'nia-theme' ),
-					'title'   => __( 'Seamoss Capsules', 'nia-theme' ),
-					'price'   => '65,000 TZS',
-					'image'   => 'product-capsules.jpg',
-				),
-			);
-			foreach ( $nia_featured_placeholder as $nia_product ) :
-				?>
-				<div class="group cursor-pointer">
-					<a href="<?php echo esc_url( nia_theme_shop_url() ); ?>">
-						<div class="card-product mb-6">
-							<img class="card-product-image" src="<?php echo esc_url( NIA_THEME_URI . '/assets/images/placeholders/' . $nia_product['image'] ); ?>" alt="<?php echo esc_attr( $nia_product['title'] ); ?>" />
-						</div>
-						<div class="flex flex-col items-center text-center">
-							<span class="font-label-md text-primary mb-2"><?php echo esc_html( $nia_product['eyebrow'] ); ?></span>
-							<h3 class="font-headline-sm text-on-background mb-2"><?php echo esc_html( $nia_product['title'] ); ?></h3>
-							<p class="font-label-lg text-on-surface font-bold"><?php echo esc_html( $nia_product['price'] ); ?></p>
-						</div>
-					</a>
+<?php
+$nia_featured_ids = function_exists( 'wc_get_featured_product_ids' ) ? wc_get_featured_product_ids() : array();
+if ( ! empty( $nia_featured_ids ) ) :
+	$nia_featured_query = new WP_Query(
+		array(
+			'post_type'      => 'product',
+			'post__in'       => $nia_featured_ids,
+			'posts_per_page' => 4,
+			'orderby'        => 'post__in',
+		)
+	);
+	if ( $nia_featured_query->have_posts() ) :
+		?>
+		<!-- Featured Products (ARCHITECTURE.md §9a — live WooCommerce Featured-product query, count-agnostic) -->
+		<section class="py-section-gap bg-surface px-margin-mobile md:px-margin-desktop overflow-hidden">
+			<div class="max-w-container-max mx-auto">
+				<div class="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
+					<div>
+						<span class="font-label-lg text-primary uppercase tracking-[0.2em] mb-4 block"><?php esc_html_e( 'Selection', 'nia-theme' ); ?></span>
+						<h2 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg"><?php esc_html_e( 'Core Collection', 'nia-theme' ); ?></h2>
+					</div>
+					<a class="btn-link" href="<?php echo esc_url( nia_theme_shop_url() ); ?>"><?php esc_html_e( 'View All Products', 'nia-theme' ); ?></a>
 				</div>
-			<?php endforeach; ?>
-		</div>
-	</div>
-</section>
+				<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
+					<?php
+					while ( $nia_featured_query->have_posts() ) :
+						$nia_featured_query->the_post();
+						$nia_product = wc_get_product( get_the_ID() );
+						if ( ! $nia_product ) {
+							continue;
+						}
+						$nia_category = wp_strip_all_tags( wc_get_product_category_list( get_the_ID(), ', ' ) );
+						?>
+						<div class="group cursor-pointer">
+							<a href="<?php the_permalink(); ?>">
+								<div class="card-product mb-6">
+									<?php
+									echo wp_kses_post(
+										get_the_post_thumbnail(
+											get_the_ID(),
+											'woocommerce_thumbnail',
+											array( 'class' => 'card-product-image' )
+										)
+									);
+									?>
+								</div>
+								<div class="flex flex-col items-center text-center">
+									<?php if ( $nia_category ) : ?>
+										<span class="font-label-md text-primary mb-2 uppercase"><?php echo esc_html( $nia_category ); ?></span>
+									<?php endif; ?>
+									<h3 class="font-headline-sm text-on-background mb-2"><?php the_title(); ?></h3>
+									<p class="font-label-lg text-on-surface font-bold"><?php echo wp_kses_post( $nia_product->get_price_html() ); ?></p>
+								</div>
+							</a>
+						</div>
+					<?php endwhile; ?>
+				</div>
+			</div>
+		</section>
+		<?php
+	endif;
+	wp_reset_postdata();
+endif;
+?>
 
 <?php
 echo render_block( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- render_block() output comes from our own escaped render.php templates.

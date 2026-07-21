@@ -331,6 +331,48 @@
     @apply border-on-background bg-surface-container;
   }
 
+  /* Checkout form fields (WC Blocks' own package CSS ships a cold
+     rgb(43,45,47) border, 4px radius, and a blue focus ring/checkbox tick —
+     none of it brand-matched since it's separate from the classic
+     woocommerce_enqueue_styles bundle this theme disables). Re-themed to
+     the same border-warm-grey/rounded-none/focus:border-on-background
+     treatment as .nia-form-input elsewhere in the account forms. */
+  /* !important is needed here: WC's own checkout.css targets
+     .wc-block-components-text-input input[type="text"] (and 5 other type
+     variants) which is more specific than a plain descendant selector. */
+  .wc-block-components-text-input input,
+  .wc-blocks-components-select__select,
+  .wc-block-components-textarea textarea {
+    border-radius: 0 !important;
+    border-color: theme('colors.warm-grey') !important;
+  }
+  .wc-block-components-text-input input:focus,
+  .wc-blocks-components-select__select:focus,
+  .wc-block-components-textarea textarea:focus {
+    border-color: theme('colors.on-background') !important;
+    box-shadow: none !important;
+  }
+  .wc-block-components-checkbox__mark {
+    fill: theme('colors.on-background');
+  }
+  .wc-block-components-checkbox__input:focus + .wc-block-components-checkbox__mark {
+    outline: 2px solid theme('colors.on-background');
+    outline-offset: 2px;
+  }
+
+  /* Checkout trust row + payment note — added as sibling blocks in the
+     Checkout page's own block content (not template code, see
+     CUSTOMIZATIONS.md), same pattern as .nia-cart-trust-row on Cart. */
+  .nia-checkout-trust-row {
+    @apply flex flex-wrap items-center gap-x-8 gap-y-2 pt-6 mt-2 border-t border-warm-grey text-on-surface-variant font-label-md text-label-md uppercase tracking-widest;
+  }
+  .nia-checkout-trust-row p {
+    @apply flex items-center gap-2;
+  }
+  .nia-checkout-payment-note {
+    @apply font-body-md text-sm text-on-surface-variant mt-4 mb-6;
+  }
+
   /* PROJECT_PLAN.md Phase 6 — Order History ("app card" treatment),
      targeting WooCommerce's native orders-table class names only, no
      template override needed. */

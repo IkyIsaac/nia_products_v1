@@ -34,6 +34,13 @@ module.exports = {
     'wc-block-components-checkout-step__heading',
     'wc-block-components-radio-control__option-checked',
     'woocommerce-orders-table',
+    'wc-block-components-text-input',
+    'wc-blocks-components-select__select',
+    'wc-block-components-textarea',
+    'wc-block-components-checkbox__mark',
+    'wc-block-components-checkbox__input',
+    'nia-checkout-trust-row',
+    'nia-checkout-payment-note',
   ],
   theme: {
     extend: {

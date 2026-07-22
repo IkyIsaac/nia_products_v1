@@ -7,7 +7,13 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'NIA_THEME_VERSION', '0.1.0' );
+// Bump on every CSS/JS change, not just theme releases — this string is the
+// cache-busting ?ver= query param on every enqueued style/script. It sat at
+// 0.1.0 unchanged since Phase 2 despite main.js/style.css changing across
+// many commits since, including today's — a returning visitor's browser can
+// cache main.js indefinitely against that unchanging URL and silently keep
+// running old JS after a fix ships, with no error to show for it.
+define( 'NIA_THEME_VERSION', '0.2.0' );
 define( 'NIA_THEME_DIR', get_template_directory() );
 define( 'NIA_THEME_URI', get_template_directory_uri() );
 

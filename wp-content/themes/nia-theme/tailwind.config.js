@@ -52,6 +52,10 @@ module.exports = {
     'woocommerce-columns--addresses',
     'woocommerce-column--billing-address',
     'woocommerce-column--shipping-address',
+    'woocommerce-orders-table__cell-order-number',
+    'woocommerce-orders-table__cell-order-actions',
+    'woocommerce-pagination',
+    'woocommerce-info',
   ],
   theme: {
     extend: {

@@ -25,6 +25,54 @@ class Nia_Woocommerce {
 		add_filter( 'woocommerce_account_menu_items', array( $this, 'add_and_reorder_dashboard_menu_items' ), 20 );
 		add_action( 'woocommerce_account_my-rituals_endpoint', array( $this, 'render_my_rituals_endpoint' ) );
 		add_action( 'woocommerce_account_wellness-profile_endpoint', array( $this, 'render_wellness_profile_endpoint' ) );
+		add_action( 'woocommerce_before_account_orders', array( $this, 'render_orders_heading' ) );
+		add_action( 'woocommerce_my_account_my_orders_column_order-status', array( $this, 'render_order_status_pill' ) );
+	}
+
+	/**
+	 * "Order History" page heading — the native Orders endpoint
+	 * (myaccount/orders.php, unmodified) never had one; every other My
+	 * Account section does (dashboard.php's welcome header, or the h1 this
+	 * theme's edit-address/edit-account overrides add). Hooked rather than
+	 * template-copied since a heading is the only thing missing here — see
+	 * the CSS below for the actual table restyle, which only needed
+	 * WooCommerce's own stable class names (ARCHITECTURE.md "hooks before
+	 * template overrides").
+	 *
+	 * @param bool $has_orders Whether the customer has any orders — fires
+	 *                         either way, so the heading shows on the empty
+	 *                         state too.
+	 */
+	public function render_orders_heading( $has_orders ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- required by the woocommerce_before_account_orders signature; heading shows regardless of its value.
+		echo '<h1 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-background mb-8">' . esc_html__( 'Order History', 'nia-theme' ) . '</h1>';
+	}
+
+	/**
+	 * Order status as a colored pill (matches dashboard.php's Recent Orders
+	 * preview treatment) instead of the default plain status text. Hooked
+	 * via woocommerce_my_account_my_orders_column_order-status — orders.php
+	 * checks has_action() for this exact hook name and, when present, skips
+	 * its own default output entirely and calls this instead.
+	 *
+	 * @param WC_Order $order Order being listed.
+	 */
+	public function render_order_status_pill( $order ) {
+		$status  = $order->get_status();
+		$palette = array(
+			'completed'  => 'bg-primary/10 text-primary',
+			'processing' => 'bg-surface-container text-on-background',
+			'on-hold'    => 'bg-tertiary-container text-on-tertiary-container',
+			'pending'    => 'bg-tertiary-container text-on-tertiary-container',
+			'cancelled'  => 'bg-error-container text-on-error-container',
+			'failed'     => 'bg-error-container text-on-error-container',
+			'refunded'   => 'bg-surface-container-low text-on-surface-variant',
+		);
+		$class = $palette[ $status ] ?? 'bg-surface-container-low text-on-surface-variant';
+		printf(
+			'<span class="px-3 py-1 %s font-label-md text-label-md rounded-full uppercase">%s</span>',
+			esc_attr( $class ),
+			esc_html( wc_get_order_status_name( $status ) )
+		);
 	}
 
 	/**

@@ -387,15 +387,89 @@
 
   /* PROJECT_PLAN.md Phase 6 — Order History ("app card" treatment),
      targeting WooCommerce's native orders-table class names only, no
-     template override needed. */
+     template override needed. Revisited 2026-07-23: the original three
+     rules above styled the card shell and header band but never gave the
+     cells themselves any padding, so the table rendered squeezed/illegible
+     (WooCommerce's own default stylesheet — disabled sitewide — used to
+     supply that, plus the mobile responsive-card behavior below, which
+     relies on the data-title attribute the template already outputs on
+     every <td>). Status pill comes from a hook
+     (Nia_Woocommerce::render_order_status_pill()), not CSS — the default
+     template only outputs plain status text, nothing to color-key off of
+     without wrapping it in its own element. */
   .woocommerce-orders-table {
-    @apply sunlight-shadow rounded-xl overflow-hidden bg-off-white;
+    @apply sunlight-shadow rounded-xl overflow-hidden bg-off-white w-full;
   }
   .woocommerce-orders-table thead {
     @apply bg-surface-container-low uppercase font-label-md text-label-md text-on-surface-variant;
   }
+  .woocommerce-orders-table th,
+  .woocommerce-orders-table td {
+    @apply px-6 py-4 text-left;
+  }
   .woocommerce-orders-table tbody tr {
-    @apply border-t border-warm-grey;
+    @apply border-t border-warm-grey transition-colors duration-300;
+  }
+  .woocommerce-orders-table tbody tr:hover {
+    @apply bg-surface-container-low;
+  }
+  .woocommerce-orders-table__cell-order-number {
+    @apply font-label-lg text-label-lg font-bold;
+  }
+  .woocommerce-orders-table__cell-order-actions a {
+    @apply btn-link;
+  }
+
+  /* Mobile: WC's own disabled stylesheet used to turn this into a stacked
+     card list below ~768px, keyed off the data-title attribute the
+     template already puts on every <td> — reimplemented here rather than
+     just letting the table squeeze/scroll, since a 5-column table is
+     unreadable at 390px regardless of padding. */
+  @media (max-width: 767px) {
+    .woocommerce-orders-table thead {
+      display: none;
+    }
+    .woocommerce-orders-table,
+    .woocommerce-orders-table tbody,
+    .woocommerce-orders-table tr {
+      display: block;
+      width: 100%;
+    }
+    .woocommerce-orders-table tr {
+      @apply p-4;
+    }
+    .woocommerce-orders-table td {
+      @apply flex items-center justify-between gap-4 py-2 px-0 border-none text-right;
+    }
+    .woocommerce-orders-table td::before {
+      content: attr(data-title);
+      @apply font-label-md text-label-md uppercase tracking-wide text-on-surface-variant text-left;
+    }
+    .woocommerce-orders-table__cell-order-actions {
+      @apply justify-end;
+    }
+    .woocommerce-orders-table__cell-order-actions::before {
+      content: none;
+    }
+  }
+
+  /* Pagination (Previous/Next) — Order History, more than one page. */
+  .woocommerce-pagination {
+    @apply flex items-center justify-center gap-4 mt-8;
+  }
+  .woocommerce-pagination .button {
+    @apply btn-outline-light;
+  }
+
+  /* Generic WooCommerce "notice" banner (type: notice, not error/success) —
+     used here for Order History's "No order has been made yet." empty
+     state, matching .nia-account-empty-state's card treatment used
+     elsewhere in My Account. */
+  .woocommerce-info {
+    @apply bg-off-white sunlight-shadow rounded-xl p-8 flex flex-wrap items-center justify-between gap-4 font-body-md text-on-surface-variant;
+  }
+  .woocommerce-info .button {
+    @apply btn-primary;
   }
 
   /* Checkout -> order-received ("Thank you") page — never had a theme

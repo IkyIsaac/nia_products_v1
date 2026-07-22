@@ -397,6 +397,79 @@
   .woocommerce-orders-table tbody tr {
     @apply border-t border-warm-grey;
   }
+
+  /* Checkout -> order-received ("Thank you") page — never had a theme
+     override or any CSS at all, so it rendered as fully unstyled default
+     WooCommerce markup (raw list/table/address tags) in stark contrast to
+     every other page. Targets the classic shortcode-style template's own
+     stable class names (checkout/order-received.php, checkout/thankyou.php,
+     order/order-details.php, order/order-details-customer.php) rather than
+     a full template override, consistent with Cart/Order History elsewhere.
+     Page container width already comes from page-checkout.php (this
+     endpoint is the Checkout page with different query vars) — constrained
+     narrower here since a receipt reads better than a full-width form. */
+  .woocommerce-order {
+    @apply max-w-3xl mx-auto space-y-8;
+  }
+  .woocommerce-thankyou-order-received {
+    @apply bg-primary/10 text-on-background border border-primary/30 rounded-xl px-6 py-4 font-body-lg;
+  }
+  .woocommerce-order-overview {
+    @apply bg-off-white sunlight-shadow rounded-xl p-8 grid grid-cols-2 md:grid-cols-4 gap-6 list-none;
+  }
+  .woocommerce-order-overview li {
+    @apply flex flex-col gap-1;
+  }
+  .woocommerce-order-overview__label,
+  .woocommerce-order-overview li {
+    @apply font-label-md text-label-md uppercase tracking-widest text-on-surface-variant;
+  }
+  .woocommerce-order-overview li strong {
+    @apply font-body-lg text-on-background normal-case tracking-normal;
+  }
+  .woocommerce-order-details__title,
+  .woocommerce-column__title {
+    @apply font-headline-md text-headline-md text-on-background mb-6;
+  }
+  .woocommerce-table--order-details {
+    @apply w-full bg-off-white sunlight-shadow rounded-xl overflow-hidden border-collapse;
+  }
+  .woocommerce-table--order-details thead {
+    @apply bg-surface-container-low uppercase font-label-md text-label-md text-on-surface-variant;
+  }
+  .woocommerce-table--order-details th,
+  .woocommerce-table--order-details td {
+    @apply px-6 py-4 text-left;
+  }
+  .woocommerce-table--order-details tbody tr,
+  .woocommerce-table--order-details tfoot tr {
+    @apply border-t border-warm-grey;
+  }
+  .woocommerce-table--order-details tfoot th {
+    @apply font-label-lg text-label-lg;
+  }
+  .woocommerce-customer-details {
+    @apply pt-4;
+  }
+  .woocommerce-columns--addresses {
+    @apply grid grid-cols-1 md:grid-cols-2 gap-gutter;
+  }
+  .woocommerce-column--billing-address,
+  .woocommerce-column--shipping-address {
+    @apply bg-off-white sunlight-shadow rounded-xl p-8;
+  }
+  .woocommerce-customer-details address {
+    @apply not-italic font-body-md text-on-surface-variant leading-relaxed;
+  }
+
+  /* "Your Ritual" summary (Nia_Subscriptions::render_ritual_summary(),
+     hooked to woocommerce_thankyou at a later priority than subscription
+     creation itself, so this renders the same records it was just handed —
+     no template edit needed since that hook already fires on this page,
+     right after the order-details table). */
+  .nia-ritual-summary {
+    @apply bg-off-white sunlight-shadow rounded-xl p-8 border-l-4 border-primary;
+  }
 }
 
 @layer utilities {

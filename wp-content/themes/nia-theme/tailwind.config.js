@@ -41,6 +41,17 @@ module.exports = {
     'wc-block-components-checkbox__input',
     'nia-checkout-trust-row',
     'nia-checkout-payment-note',
+    'woocommerce-order',
+    'woocommerce-thankyou-order-received',
+    'woocommerce-order-overview',
+    'woocommerce-order-overview__label',
+    'woocommerce-order-details__title',
+    'woocommerce-column__title',
+    'woocommerce-table--order-details',
+    'woocommerce-customer-details',
+    'woocommerce-columns--addresses',
+    'woocommerce-column--billing-address',
+    'woocommerce-column--shipping-address',
   ],
   theme: {
     extend: {

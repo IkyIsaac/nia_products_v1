@@ -97,8 +97,12 @@ class Nia_Subscriptions {
 		add_filter( 'woocommerce_get_item_data', array( $this, 'display_cart_item_meta' ), 10, 2 );
 		add_action( 'woocommerce_checkout_create_order_line_item', array( $this, 'add_order_line_item_meta' ), 10, 4 );
 
-		// Order paid -> create the subscription record(s) + schedule.
-		add_action( 'woocommerce_thankyou', array( $this, 'maybe_create_subscriptions_from_order' ) );
+		// Order paid -> create the subscription record(s) + schedule, then
+		// (priority 20, after creation) show a "Your Ritual" summary on the
+		// same thank-you page — this hook already fires there, right after
+		// the order-details table, so no template edit is needed.
+		add_action( 'woocommerce_thankyou', array( $this, 'maybe_create_subscriptions_from_order' ), 10 );
+		add_action( 'woocommerce_thankyou', array( $this, 'render_ritual_summary' ), 20 );
 
 		// Subscription page's product-picker "Add to Bag".
 		add_action( 'wp_ajax_nia_subscribe_add_to_cart', array( $this, 'ajax_add_subscription_to_cart' ) );
@@ -727,6 +731,83 @@ class Nia_Subscriptions {
 
 		$order->update_meta_data( '_nia_subscriptions_created', 1 );
 		$order->save();
+	}
+
+	/**
+	 * Subscriptions created from a given order — for the thank-you page's
+	 * "Your Ritual" summary (one order can produce more than one
+	 * subscription record if it mixed more than one cadence/start-date).
+	 *
+	 * @param int $order_id Source order ID.
+	 * @return WP_Post[]
+	 */
+	private static function get_subscriptions_by_order( $order_id ) {
+		return get_posts(
+			array(
+				'post_type'      => 'nia_subscription',
+				'posts_per_page' => -1,
+				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- single-order lookup, tiny result set.
+					array(
+						'key'   => '_nia_source_order_id',
+						'value' => (int) $order_id,
+					),
+				),
+			)
+		);
+	}
+
+	/**
+	 * "Your Ritual" summary on the thank-you page — hooked to
+	 * woocommerce_thankyou at a later priority than
+	 * maybe_create_subscriptions_from_order() (same hook), so the records
+	 * it queries here already exist by the time this runs, on the same
+	 * page load. A no-op for orders with no subscription-tagged items.
+	 *
+	 * @param int $order_id Order ID.
+	 */
+	public function render_ritual_summary( $order_id ) {
+		$subscriptions = self::get_subscriptions_by_order( $order_id );
+		if ( ! $subscriptions ) {
+			return;
+		}
+
+		$cadences = self::get_cadences();
+		?>
+		<section class="space-y-6">
+			<?php foreach ( $subscriptions as $subscription ) : ?>
+				<?php
+				$cadence_key = get_post_meta( $subscription->ID, '_nia_cadence', true );
+				$cadence     = $cadences[ $cadence_key ] ?? null;
+				$products    = self::get_meta_array( $subscription->ID, '_nia_products' );
+				$schedule    = self::get_meta_array( $subscription->ID, '_nia_schedule' );
+				$first_date  = self::get_next_delivery_date( $schedule );
+				?>
+				<div class="nia-ritual-summary">
+					<p class="font-label-lg text-label-lg text-primary uppercase tracking-widest mb-2">
+						<?php echo esc_html( $cadence['label'] ?? $cadence_key ); ?> <?php esc_html_e( 'Ritual Started', 'nia-theme' ); ?>
+					</p>
+					<h2 class="font-headline-md text-headline-md text-on-background mb-4"><?php echo esc_html( $cadence['term_label'] ?? '' ); ?></h2>
+					<ul class="space-y-1 mb-4">
+						<?php foreach ( $products as $line ) : ?>
+							<?php $product = wc_get_product( $line['product_id'] ); ?>
+							<?php if ( $product ) : ?>
+								<li class="font-body-md text-on-surface-variant"><?php echo esc_html( $product->get_name() . ' × ' . (int) $line['quantity'] . ' / delivery' ); ?></li>
+							<?php endif; ?>
+						<?php endforeach; ?>
+					</ul>
+					<?php if ( $first_date ) : ?>
+						<p class="font-label-md text-label-md uppercase tracking-widest text-on-surface-variant">
+							<?php
+							/* translators: %s: first delivery date */
+							echo esc_html( sprintf( __( 'First delivery: %s', 'nia-theme' ), date_i18n( get_option( 'date_format' ), strtotime( $first_date ) ) ) );
+							?>
+						</p>
+					<?php endif; ?>
+					<a class="btn-link mt-4 inline-block" href="<?php echo esc_url( wc_get_account_endpoint_url( 'my-rituals' ) ); ?>"><?php esc_html_e( 'View in My Rituals', 'nia-theme' ); ?></a>
+				</div>
+			<?php endforeach; ?>
+		</section>
+		<?php
 	}
 
 	/**

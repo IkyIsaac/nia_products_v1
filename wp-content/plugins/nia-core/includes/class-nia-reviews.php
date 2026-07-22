@@ -30,6 +30,8 @@ class Nia_Reviews {
 	public function __construct() {
 		add_action( 'wp_ajax_nia_toggle_helpful', array( $this, 'ajax_toggle_helpful' ) );
 		add_action( 'wp_ajax_nopriv_nia_toggle_helpful', array( $this, 'ajax_toggle_helpful' ) );
+		add_action( 'wp_ajax_nia_filter_reviews', array( $this, 'ajax_filter_reviews' ) );
+		add_action( 'wp_ajax_nopriv_nia_filter_reviews', array( $this, 'ajax_filter_reviews' ) );
 		// Priority 20: plugins' hooks register before the theme's
 		// functions.php runs (wp-settings.php fires plugins_loaded before
 		// including functions.php), so at the default priority this ran
@@ -51,8 +53,9 @@ class Nia_Reviews {
 			'nia-main',
 			'niaReviews',
 			array(
-				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-				'nonce'   => wp_create_nonce( 'nia_toggle_helpful' ),
+				'ajaxUrl'     => admin_url( 'admin-ajax.php' ),
+				'nonce'       => wp_create_nonce( 'nia_toggle_helpful' ),
+				'filterNonce' => wp_create_nonce( 'nia_filter_reviews' ),
 			)
 		);
 	}
@@ -328,6 +331,175 @@ class Nia_Reviews {
 		}
 
 		return $reviews;
+	}
+
+	/**
+	 * The Reviews & Ratings grid (summary/breakdown/write-review column +
+	 * sort/filter + review list column) — content-single-product.php's
+	 * #nia-reviews-grid markup, extracted here so ajax_filter_reviews() can
+	 * render the exact same markup for the AJAX-refreshed fragment instead
+	 * of duplicating it. Sort/rating-filter links keep their real
+	 * href (?review_sort=.../#nia-reviews) as a no-JS fallback, but carry a
+	 * class main.js intercepts to swap this fragment in place instead of a
+	 * full page reload — that reload was the "jumps to the top of the
+	 * section" bad UX this replaces (a hash-anchor navigation always
+	 * scrolls there, even if the reader was scrolled deep into the list).
+	 *
+	 * @param WC_Product $product Current product.
+	 */
+	public static function render_reviews_grid( $product ) {
+		$nia_avg = (float) $product->get_average_rating();
+		?>
+		<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter items-start">
+			<!-- Summary + Write a Review -->
+			<div class="md:col-span-4 md:sticky md:top-32 space-y-6">
+				<div class="bg-off-white sunlight-shadow rounded-xl p-8 text-center">
+					<p class="font-display-lg text-6xl text-on-background"><?php echo esc_html( number_format_i18n( $nia_avg, 1 ) ); ?></p>
+					<div class="flex justify-center gap-1 text-primary my-3">
+						<?php for ( $nia_i = 1; $nia_i <= 5; $nia_i++ ) : ?>
+							<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' <?php echo $nia_i <= round( $nia_avg ) ? '1' : '0'; ?>">star</span>
+						<?php endfor; ?>
+					</div>
+					<p class="font-body-md text-on-surface-variant">
+						<?php
+						/* translators: %d: number of reviews */
+						echo esc_html( sprintf( _n( 'Based on %d review', 'Based on %d reviews', $product->get_review_count(), 'nia-theme' ), $product->get_review_count() ) );
+						?>
+					</p>
+				</div>
+
+				<?php
+				$nia_rating_counts = $product->get_rating_counts();
+				$nia_max_count     = ! empty( $nia_rating_counts ) ? max( $nia_rating_counts ) : 0;
+				$nia_active_filter = self::get_current_rating_filter();
+				?>
+				<?php if ( $nia_max_count > 0 ) : ?>
+					<div class="bg-off-white sunlight-shadow rounded-xl p-8 space-y-3">
+						<?php for ( $nia_star = 5; $nia_star >= 1; $nia_star-- ) : ?>
+							<?php
+							$nia_star_count = isset( $nia_rating_counts[ $nia_star ] ) ? (int) $nia_rating_counts[ $nia_star ] : 0;
+							$nia_percent    = $nia_max_count ? round( ( $nia_star_count / $nia_max_count ) * 100 ) : 0;
+							$nia_is_active  = $nia_active_filter === $nia_star;
+							$nia_filter_url = $nia_is_active ? remove_query_arg( 'rating_filter' ) : add_query_arg( 'rating_filter', $nia_star );
+							?>
+							<a href="<?php echo esc_url( $nia_filter_url . '#nia-reviews' ); ?>" class="nia-review-filter-link flex items-center gap-3 group">
+								<span class="font-label-md text-label-md w-12 group-hover:text-primary <?php echo $nia_is_active ? 'text-primary' : 'text-on-surface-variant'; ?>">
+									<?php
+									/* translators: %d: star rating (1-5) */
+									echo esc_html( sprintf( __( '%d star', 'nia-theme' ), $nia_star ) );
+									?>
+								</span>
+								<span class="flex-1 h-2 bg-warm-grey rounded-full overflow-hidden">
+									<span class="block h-full bg-primary rounded-full" style="width: <?php echo (int) $nia_percent; ?>%"></span>
+								</span>
+								<span class="font-label-md text-label-md w-6 text-right text-on-surface-variant"><?php echo (int) $nia_star_count; ?></span>
+							</a>
+						<?php endfor; ?>
+					</div>
+				<?php endif; ?>
+
+				<?php
+				$nia_reviews_allowed = 'no' === get_option( 'woocommerce_review_rating_verification_required' ) || wc_customer_bought_product( '', get_current_user_id(), $product->get_id() );
+				?>
+				<?php if ( $nia_reviews_allowed ) : ?>
+					<div class="bg-off-white sunlight-shadow rounded-xl p-8">
+						<?php comment_form( self::comment_form_args( $product ), $product->get_id() ); ?>
+					</div>
+				<?php else : ?>
+					<div class="bg-surface-container-low rounded-xl p-8 text-center">
+						<p class="font-body-md text-on-surface-variant"><?php esc_html_e( 'Only logged-in customers who have purchased this product may leave a review.', 'nia-theme' ); ?></p>
+					</div>
+				<?php endif; ?>
+			</div>
+
+			<!-- Review List -->
+			<div class="md:col-span-8">
+				<?php
+				$nia_reviews   = self::get_reviews( $product->get_id() );
+				$nia_sort      = self::get_current_sort();
+				$nia_sort_opts = array(
+					'recent'  => __( 'Most Recent', 'nia-theme' ),
+					'highest' => __( 'Highest Rating', 'nia-theme' ),
+					'lowest'  => __( 'Lowest Rating', 'nia-theme' ),
+					'helpful' => __( 'Most Helpful', 'nia-theme' ),
+				);
+				?>
+				<div class="flex flex-wrap items-center justify-between gap-4 mb-8">
+					<p class="font-label-lg text-label-lg text-on-surface-variant">
+						<?php
+						/* translators: %d: number of reviews shown */
+						echo esc_html( sprintf( _n( '%d Review', '%d Reviews', count( $nia_reviews ), 'nia-theme' ), count( $nia_reviews ) ) );
+						?>
+					</p>
+					<div class="flex flex-wrap items-center gap-2">
+						<?php foreach ( $nia_sort_opts as $nia_key => $nia_label ) : ?>
+							<a
+								href="<?php echo esc_url( add_query_arg( 'review_sort', $nia_key ) . '#nia-reviews' ); ?>"
+								class="nia-review-sort-link font-label-md text-label-md uppercase tracking-widest px-3 py-1 rounded-full transition-colors duration-300 <?php echo $nia_sort === $nia_key ? 'bg-on-background text-off-white' : 'text-on-surface-variant hover:text-primary'; ?>"
+							>
+								<?php echo esc_html( $nia_label ); ?>
+							</a>
+						<?php endforeach; ?>
+					</div>
+				</div>
+
+				<?php if ( $nia_reviews ) : ?>
+					<ol class="space-y-6">
+						<?php
+						wp_list_comments(
+							array( 'callback' => array( __CLASS__, 'render_comment' ) ),
+							$nia_reviews
+						);
+						?>
+					</ol>
+				<?php else : ?>
+					<div class="bg-surface-container-low rounded-xl p-12 text-center">
+						<span class="material-symbols-outlined text-primary text-4xl">rate_review</span>
+						<p class="font-body-md text-on-surface-variant mt-4"><?php esc_html_e( 'No reviews yet — be the first to share your experience.', 'nia-theme' ); ?></p>
+					</div>
+				<?php endif; ?>
+			</div>
+		</div>
+		<?php
+	}
+
+	/**
+	 * AJAX refresh of #nia-reviews-grid for a sort/rating-filter click —
+	 * avoids the full page reload (and the hash-anchor scroll jump that
+	 * came with it) the plain href fallback would otherwise trigger.
+	 * review_sort/rating_filter are read the same way the page-load path
+	 * reads them (self::get_current_sort()/get_current_rating_filter()
+	 * via $_GET), so this request sets $_GET from POST first — read-only
+	 * display state either way, not a state-changing action, consistent
+	 * with those methods' own nonce-less $_GET reads.
+	 */
+	public function ajax_filter_reviews() {
+		check_ajax_referer( 'nia_filter_reviews', 'nonce' );
+
+		$product_id = isset( $_POST['product_id'] ) ? absint( wp_unslash( $_POST['product_id'] ) ) : 0;
+		$product    = $product_id ? wc_get_product( $product_id ) : null;
+
+		if ( ! $product ) {
+			wp_send_json_error( array( 'message' => __( 'Product not found.', 'nia-theme' ) ), 404 );
+		}
+
+		if ( isset( $_POST['review_sort'] ) ) {
+			$_GET['review_sort'] = sanitize_key( wp_unslash( $_POST['review_sort'] ) );
+		} else {
+			unset( $_GET['review_sort'] );
+		}
+
+		if ( isset( $_POST['rating_filter'] ) ) {
+			$_GET['rating_filter'] = absint( wp_unslash( $_POST['rating_filter'] ) );
+		} else {
+			unset( $_GET['rating_filter'] );
+		}
+
+		ob_start();
+		self::render_reviews_grid( $product );
+		$html = ob_get_clean();
+
+		wp_send_json_success( array( 'html' => $html ) );
 	}
 
 	/**

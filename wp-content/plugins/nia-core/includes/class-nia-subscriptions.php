@@ -188,6 +188,29 @@ class Nia_Subscriptions {
 	}
 
 	/**
+	 * Array-valued post meta, defaulting to an empty array — never the
+	 * bare `(array) get_post_meta(...)` cast used to sit at every one of
+	 * these call sites. On a post that's never had this meta saved yet
+	 * (a brand new nia_subscription — WordPress gives every registered
+	 * post type its own "Add New" screen automatically, so this is
+	 * reachable even though every real subscription is only ever created
+	 * programmatically, never by hand), get_post_meta() returns '', and
+	 * PHP's (array) cast on a non-empty scalar wraps it as [0 => ''] — a
+	 * one-element array holding that string — not an empty array. Every
+	 * caller then does $line['product_id'] on that string and fatals
+	 * with "Cannot access offset of type string on string". This is the
+	 * fatal that broke the CPT's own "Add New" screen.
+	 *
+	 * @param int    $post_id Post ID.
+	 * @param string $key     Meta key.
+	 * @return array
+	 */
+	private static function get_meta_array( $post_id, $key ) {
+		$value = get_post_meta( $post_id, $key, true );
+		return is_array( $value ) ? $value : array();
+	}
+
+	/**
 	 * Register the `nia_subscription` CPT — admin-only (never public), so
 	 * WordPress's own native list-table/edit-screen UI is the entire admin
 	 * interface; no bespoke admin page needed for "owner can see active
@@ -198,9 +221,19 @@ class Nia_Subscriptions {
 			'nia_subscription',
 			array(
 				'labels'          => array(
-					'name'          => __( 'Subscriptions', 'nia-theme' ),
-					'singular_name' => __( 'Subscription', 'nia-theme' ),
-					'all_items'     => __( 'Subscriptions', 'nia-theme' ),
+					'name'               => __( 'Subscriptions', 'nia-theme' ),
+					'singular_name'      => __( 'Subscription', 'nia-theme' ),
+					'all_items'          => __( 'Subscriptions', 'nia-theme' ),
+					'add_new'            => __( 'Add Subscription', 'nia-theme' ),
+					'add_new_item'       => __( 'Add Subscription', 'nia-theme' ),
+					'edit_item'          => __( 'Edit Subscription', 'nia-theme' ),
+					'new_item'           => __( 'New Subscription', 'nia-theme' ),
+					'view_item'          => __( 'View Subscription', 'nia-theme' ),
+					'view_items'         => __( 'View Subscriptions', 'nia-theme' ),
+					'search_items'       => __( 'Search Subscriptions', 'nia-theme' ),
+					'not_found'          => __( 'No subscriptions found.', 'nia-theme' ),
+					'not_found_in_trash' => __( 'No subscriptions found in Trash.', 'nia-theme' ),
+					'menu_name'          => __( 'Subscriptions', 'nia-theme' ),
 				),
 				'public'          => false,
 				'show_ui'         => true,
@@ -210,6 +243,14 @@ class Nia_Subscriptions {
 				'supports'        => array( 'title' ),
 				'capability_type' => 'post',
 				'map_meta_cap'    => true,
+				// Every real subscription is created programmatically from a
+				// paid order (maybe_create_subscriptions_from_order()) — a
+				// blank one added by hand through wp-admin has no order/
+				// products/schedule behind it and fatals the edit screen
+				// (render_details_meta_box() assumes that data exists), so
+				// manual creation is blocked outright rather than merely
+				// discouraged. Existing subscriptions stay fully editable.
+				'capabilities'    => array( 'create_posts' => 'do_not_allow' ),
 			)
 		);
 	}
@@ -250,7 +291,7 @@ class Nia_Subscriptions {
 				echo esc_html( $cadences[ $cadence ]['label'] ?? $cadence );
 				break;
 			case 'products':
-				$products = (array) get_post_meta( $post_id, '_nia_products', true );
+				$products = self::get_meta_array( $post_id, '_nia_products' );
 				$names    = array();
 				foreach ( $products as $line ) {
 					$product = wc_get_product( $line['product_id'] );
@@ -261,7 +302,7 @@ class Nia_Subscriptions {
 				echo esc_html( implode( ', ', $names ) );
 				break;
 			case 'next_delivery':
-				$schedule = (array) get_post_meta( $post_id, '_nia_schedule', true );
+				$schedule = self::get_meta_array( $post_id, '_nia_schedule' );
 				$next     = self::get_next_delivery_date( $schedule );
 				echo esc_html( $next ? date_i18n( get_option( 'date_format' ), strtotime( $next ) ) : __( 'Complete', 'nia-theme' ) );
 				break;
@@ -297,8 +338,8 @@ class Nia_Subscriptions {
 		$discount    = (float) get_post_meta( $post->ID, '_nia_discount_percent', true );
 		$total_paid  = (float) get_post_meta( $post->ID, '_nia_total_paid', true );
 		$order_id    = (int) get_post_meta( $post->ID, '_nia_source_order_id', true );
-		$products    = (array) get_post_meta( $post->ID, '_nia_products', true );
-		$schedule    = (array) get_post_meta( $post->ID, '_nia_schedule', true );
+		$products    = self::get_meta_array( $post->ID, '_nia_products' );
+		$schedule    = self::get_meta_array( $post->ID, '_nia_schedule' );
 		$status      = get_post_meta( $post->ID, '_nia_status', true );
 		$status      = $status ? $status : 'active';
 
@@ -396,7 +437,7 @@ class Nia_Subscriptions {
 		}
 
 		if ( isset( $_POST['nia_schedule'] ) && is_array( $_POST['nia_schedule'] ) ) {
-			$schedule = (array) get_post_meta( $post_id, '_nia_schedule', true );
+			$schedule = self::get_meta_array( $post_id, '_nia_schedule' );
 			$allowed  = array( 'pending', 'fulfilled', 'skipped' );
 			foreach ( wp_unslash( $_POST['nia_schedule'] ) as $index => $cycle_status ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- unslashed above.
 				$cycle_status = sanitize_key( $cycle_status );

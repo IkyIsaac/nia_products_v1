@@ -323,6 +323,39 @@
     letter-spacing: inherit;
   }
 
+  /* Cart revisited 2026-07-23: the totals/checkout column had no card
+     treatment at all (unlike Checkout's .wc-block-checkout__sidebar,
+     styled below) — it sat directly on the page background with nothing
+     to distinguish it from the items list above it, and the items table's
+     own "Product / Total" header row had no styling either. Both were
+     also constrained to page.php's max-w-3xl (see page-cart.php) the same
+     way Checkout was before that got its own template. */
+  .wc-block-cart__sidebar {
+    @apply bg-off-white sunlight-shadow rounded-xl p-8 border border-warm-grey;
+  }
+  .wc-block-cart-items__header {
+    @apply uppercase font-label-md text-label-md text-on-surface-variant border-b border-warm-grey pb-4;
+  }
+
+  /* "Complete Your Ritual" cross-sell (nia-cart-upsell, added as a sibling
+     block in the Cart page's own block content — CUSTOMIZATIONS.md) uses
+     WooCommerce's generic Product Collection block, which renders its own
+     default image/price/button markup distinct from the Shop grid's
+     content-product.php cards. Re-themed via its stable class names to at
+     least match the site's photo/button treatment rather than rebuilding
+     it as a full custom card. */
+  .nia-cart-upsell .wc-block-components-product-image img {
+    @apply sunlight-shadow;
+  }
+  .nia-cart-upsell .wc-block-components-product-price {
+    @apply font-label-lg text-label-lg font-bold text-on-background;
+  }
+  .nia-cart-upsell .wc-block-components-product-button__button {
+    @apply btn-outline-light w-full rounded-none normal-case;
+    font-size: inherit;
+    letter-spacing: inherit;
+  }
+
   /* PROJECT_PLAN.md Phase 6 — Cart trust row, added as a sibling block in
      the Cart page's own block content (not template code — see
      CUSTOMIZATIONS.md). */

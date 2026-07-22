@@ -56,6 +56,12 @@ module.exports = {
     'woocommerce-orders-table__cell-order-actions',
     'woocommerce-pagination',
     'woocommerce-info',
+    'wc-block-cart__sidebar',
+    'wc-block-cart-items__header',
+    'nia-cart-upsell',
+    'wc-block-components-product-image',
+    'wc-block-components-product-price',
+    'wc-block-components-product-button__button',
   ],
   theme: {
     extend: {

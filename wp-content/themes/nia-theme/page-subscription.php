@@ -14,9 +14,19 @@
 defined( 'ABSPATH' ) || exit;
 
 get_header();
+
+// Flavor naming only (marketing copy) — the actual plan data (discount,
+// term, cycles) comes from Nia_Subscriptions::get_cadences(), never
+// hardcoded here, so the cards stay correct if the admin changes a
+// discount or the cadence definitions change.
+$nia_tier_flavor = array(
+	'weekly'   => __( 'The Enthusiast', 'nia-theme' ),
+	'biweekly' => __( 'The Balanced', 'nia-theme' ),
+	'monthly'  => __( 'The Ritualist', 'nia-theme' ),
+);
 ?>
 
-<main class="pt-32">
+<main class="pt-32" x-data="niaSubscribeModal()">
 
 	<!-- Hero -->
 	<section class="px-margin-mobile md:px-margin-desktop mb-section-gap max-w-container-max mx-auto">
@@ -93,68 +103,43 @@ get_header();
 			<p class="font-body-md text-body-md text-on-surface-variant"><?php esc_html_e( 'Choose the pace of your transformation.', 'nia-theme' ); ?></p>
 		</div>
 		<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
-
-			<div class="card-subscription-tier hover:scale-[1.02] transition-transform duration-300 flex flex-col">
-				<span class="font-label-md text-label-md text-primary uppercase mb-4"><?php esc_html_e( 'The Enthusiast', 'nia-theme' ); ?></span>
-				<h3 class="font-headline-md text-headline-md mb-2"><?php esc_html_e( 'Weekly', 'nia-theme' ); ?></h3>
-				<div class="flex items-baseline gap-2 mb-6">
-					<span class="font-label-lg text-label-lg font-bold">45,000 TZS</span>
-					<span class="text-on-surface-variant text-sm"><?php esc_html_e( '/ delivery', 'nia-theme' ); ?></span>
+			<?php foreach ( Nia_Subscriptions::get_cadences() as $nia_cadence_key => $nia_cadence ) : ?>
+				<?php $nia_is_popular = 'biweekly' === $nia_cadence_key; ?>
+				<div class="card-subscription-tier <?php echo $nia_is_popular ? 'card-subscription-tier--popular relative overflow-hidden' : 'hover:scale-[1.02] transition-transform duration-300 flex flex-col'; ?>">
+					<?php if ( $nia_is_popular ) : ?>
+						<div class="absolute top-0 right-0 bg-primary px-4 py-1 font-label-md text-label-md text-on-primary-container"><?php esc_html_e( 'MOST POPULAR', 'nia-theme' ); ?></div>
+					<?php endif; ?>
+					<span class="font-label-md text-label-md <?php echo $nia_is_popular ? 'text-primary-fixed' : 'text-primary'; ?> uppercase mb-4 block"><?php echo esc_html( $nia_tier_flavor[ $nia_cadence_key ] ?? '' ); ?></span>
+					<h3 class="font-headline-md text-headline-md mb-2 <?php echo $nia_is_popular ? 'text-off-white' : ''; ?>"><?php echo esc_html( $nia_cadence['label'] ); ?></h3>
+					<div class="flex items-baseline gap-2 mb-6">
+						<span class="font-label-lg text-label-lg font-bold"><?php echo esc_html( $nia_cadence['discount'] ); ?>%</span>
+						<span class="<?php echo $nia_is_popular ? 'text-surface-variant' : 'text-on-surface-variant'; ?> text-sm"><?php esc_html_e( 'subscription discount', 'nia-theme' ); ?></span>
+					</div>
+					<div class="border-t <?php echo $nia_is_popular ? 'border-surface-variant/20' : 'border-warm-grey'; ?> pt-6 mb-8 <?php echo $nia_is_popular ? '' : 'flex-grow'; ?>">
+						<ul class="space-y-4">
+							<?php
+							$nia_perks = array(
+								/* translators: %s: discount percentage */
+								sprintf( __( '%s%% off every product in your ritual', 'nia-theme' ), $nia_cadence['discount'] ),
+								$nia_cadence['term_label'],
+								__( 'Mix and match any products you love', 'nia-theme' ),
+							);
+							foreach ( $nia_perks as $nia_perk ) :
+								?>
+								<li class="flex items-center gap-2 font-body-md text-body-md <?php echo $nia_is_popular ? 'text-surface-variant' : 'text-on-surface-variant'; ?>">
+									<span class="material-symbols-outlined <?php echo $nia_is_popular ? 'text-primary-fixed' : 'text-primary'; ?> text-sm">check</span>
+									<?php echo esc_html( $nia_perk ); ?>
+								</li>
+							<?php endforeach; ?>
+						</ul>
+					</div>
+					<button
+						type="button"
+						class="<?php echo $nia_is_popular ? 'btn-primary-filled' : 'btn-outline-light'; ?> w-full"
+						@click="open( '<?php echo esc_js( $nia_cadence_key ); ?>' )"
+					><?php esc_html_e( 'Subscribe Now', 'nia-theme' ); ?></button>
 				</div>
-				<div class="border-t border-warm-grey pt-6 mb-8 flex-grow">
-					<ul class="space-y-4">
-						<?php foreach ( array( __( '20% Life-time Savings', 'nia-theme' ), __( 'Free Express Shipping', 'nia-theme' ), __( 'Early Harvest Access', 'nia-theme' ) ) as $nia_perk ) : ?>
-							<li class="flex items-center gap-2 font-body-md text-body-md text-on-surface-variant">
-								<span class="material-symbols-outlined text-primary text-sm">check</span>
-								<?php echo esc_html( $nia_perk ); ?>
-							</li>
-						<?php endforeach; ?>
-					</ul>
-				</div>
-				<a class="btn-outline-light w-full" href="<?php echo esc_url( nia_theme_shop_url() ); ?>"><?php esc_html_e( 'Subscribe Now', 'nia-theme' ); ?></a>
-			</div>
-
-			<div class="card-subscription-tier card-subscription-tier--popular relative overflow-hidden">
-				<div class="absolute top-0 right-0 bg-primary px-4 py-1 font-label-md text-label-md text-on-primary-container"><?php esc_html_e( 'MOST POPULAR', 'nia-theme' ); ?></div>
-				<span class="font-label-md text-label-md text-primary-fixed uppercase mb-4 block"><?php esc_html_e( 'The Balanced', 'nia-theme' ); ?></span>
-				<h3 class="font-headline-md text-headline-md mb-2 text-off-white"><?php esc_html_e( 'Bi-Weekly', 'nia-theme' ); ?></h3>
-				<div class="flex items-baseline gap-2 mb-6">
-					<span class="font-label-lg text-label-lg font-bold">82,000 TZS</span>
-					<span class="text-surface-variant text-sm"><?php esc_html_e( '/ delivery', 'nia-theme' ); ?></span>
-				</div>
-				<div class="border-t border-surface-variant/20 pt-6 mb-8">
-					<ul class="space-y-4">
-						<?php foreach ( array( __( '15% Savings Included', 'nia-theme' ), __( 'Monthly Wellness Workshop', 'nia-theme' ), __( 'Recipe E-Book Series', 'nia-theme' ) ) as $nia_perk ) : ?>
-							<li class="flex items-center gap-2 font-body-md text-body-md text-surface-variant">
-								<span class="material-symbols-outlined text-primary-fixed text-sm">check</span>
-								<?php echo esc_html( $nia_perk ); ?>
-							</li>
-						<?php endforeach; ?>
-					</ul>
-				</div>
-				<a class="btn-primary-filled w-full" href="<?php echo esc_url( nia_theme_shop_url() ); ?>"><?php esc_html_e( 'Subscribe Now', 'nia-theme' ); ?></a>
-			</div>
-
-			<div class="card-subscription-tier hover:scale-[1.02] transition-transform duration-300 flex flex-col">
-				<span class="font-label-md text-label-md text-primary uppercase mb-4"><?php esc_html_e( 'The Ritualist', 'nia-theme' ); ?></span>
-				<h3 class="font-headline-md text-headline-md mb-2"><?php esc_html_e( 'Monthly', 'nia-theme' ); ?></h3>
-				<div class="flex items-baseline gap-2 mb-6">
-					<span class="font-label-lg text-label-lg font-bold">155,000 TZS</span>
-					<span class="text-on-surface-variant text-sm"><?php esc_html_e( '/ delivery', 'nia-theme' ); ?></span>
-				</div>
-				<div class="border-t border-warm-grey pt-6 mb-8 flex-grow">
-					<ul class="space-y-4">
-						<?php foreach ( array( __( '10% Constant Savings', 'nia-theme' ), __( 'Sustainable Glass Jars', 'nia-theme' ), __( 'Eco-Packaging Priority', 'nia-theme' ) ) as $nia_perk ) : ?>
-							<li class="flex items-center gap-2 font-body-md text-body-md text-on-surface-variant">
-								<span class="material-symbols-outlined text-primary text-sm">check</span>
-								<?php echo esc_html( $nia_perk ); ?>
-							</li>
-						<?php endforeach; ?>
-					</ul>
-				</div>
-				<a class="btn-outline-light w-full" href="<?php echo esc_url( nia_theme_shop_url() ); ?>"><?php esc_html_e( 'Subscribe Now', 'nia-theme' ); ?></a>
-			</div>
-
+			<?php endforeach; ?>
 		</div>
 	</section>
 
@@ -245,6 +230,91 @@ echo render_block( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEsca
 			<a class="btn-inverse-surface sunlight-shadow relative z-10" href="<?php echo esc_url( home_url( '/contact/' ) ); ?>"><?php esc_html_e( 'Get Started', 'nia-theme' ); ?></a>
 		</div>
 	</section>
+
+	<!-- Subscribe modal — product picker for whichever tier's "Subscribe Now" was clicked (main.js: niaSubscribeModal()) -->
+	<div
+		x-cloak
+		x-show="isOpen"
+		x-transition:enter="transition ease-out duration-300"
+		x-transition:enter-start="opacity-0"
+		x-transition:enter-end="opacity-100"
+		x-transition:leave="transition ease-in duration-200"
+		x-transition:leave-start="opacity-100"
+		x-transition:leave-end="opacity-0"
+		class="fixed inset-0 z-50 bg-inverse-surface/60 flex items-center justify-center p-margin-mobile md:p-margin-desktop"
+		role="dialog"
+		aria-modal="true"
+		@keydown.escape.window="isOpen = false"
+	>
+		<div class="bg-off-white rounded-xl sunlight-shadow w-full max-w-2xl max-h-[85vh] overflow-y-auto p-8 md:p-12" @click.outside="isOpen = false">
+			<div class="flex items-start justify-between gap-4 mb-8">
+				<div>
+					<p class="font-label-lg text-label-lg text-primary uppercase tracking-widest mb-2" x-text="cadenceLabel"></p>
+					<h2 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-background"><?php esc_html_e( 'Build Your Ritual', 'nia-theme' ); ?></h2>
+					<p class="text-on-surface-variant font-body-md mt-2" x-text="cadenceTerm + ' · ' + discount + '% subscription discount'"></p>
+				</div>
+				<button type="button" class="btn-icon-circle flex-shrink-0" @click="isOpen = false" aria-label="<?php esc_attr_e( 'Close', 'nia-theme' ); ?>">
+					<span class="material-symbols-outlined">close</span>
+				</button>
+			</div>
+
+			<template x-if="!loggedIn">
+				<div class="bg-surface-container-low rounded-xl p-8 text-center">
+					<p class="font-body-md text-on-surface-variant mb-4"><?php esc_html_e( 'Please log in to start a subscription.', 'nia-theme' ); ?></p>
+					<a class="btn-primary" :href="loginUrl"><?php esc_html_e( 'Log In', 'nia-theme' ); ?></a>
+				</div>
+			</template>
+
+			<template x-if="loggedIn">
+				<div class="space-y-8">
+					<div>
+						<p class="nia-form-label"><?php esc_html_e( 'Choose your products', 'nia-theme' ); ?></p>
+						<div class="divide-y divide-warm-grey border border-warm-grey rounded-xl overflow-hidden">
+							<template x-for="item in items" :key="item.id">
+								<div class="flex items-center justify-between gap-4 p-4">
+									<div>
+										<p class="font-label-lg text-label-lg text-on-background" x-text="item.name"></p>
+										<p class="font-body-md text-sm text-on-surface-variant" x-text="item.priceHtml + ' / delivery'"></p>
+									</div>
+									<input
+										type="number"
+										class="nia-form-input w-20 text-center"
+										min="0"
+										max="20"
+										x-model.number="item.qty"
+									/>
+								</div>
+							</template>
+						</div>
+					</div>
+
+					<div>
+						<label class="nia-form-label" for="nia-subscribe-start-date"><?php esc_html_e( 'First delivery date', 'nia-theme' ); ?></label>
+						<input type="date" id="nia-subscribe-start-date" class="nia-form-input" x-model="startDate" :min="minDate" />
+					</div>
+
+					<template x-if="error">
+						<p class="font-body-md text-sm text-error" x-text="error"></p>
+					</template>
+
+					<div class="flex items-center justify-between gap-4 pt-6 border-t border-warm-grey">
+						<div>
+							<p class="font-label-md text-label-md uppercase tracking-widest text-on-surface-variant"><?php esc_html_e( 'Estimated total', 'nia-theme' ); ?></p>
+							<p class="font-headline-md text-headline-md text-on-background" x-text="estimatedTotalLabel"></p>
+						</div>
+						<button
+							type="button"
+							class="btn-primary"
+							:disabled="loading || !hasSelection || !startDate"
+							:class="{ 'opacity-50 cursor-not-allowed': loading || !hasSelection || !startDate }"
+							@click="submit()"
+							x-text="loading ? '<?php echo esc_js( __( 'Adding…', 'nia-theme' ) ); ?>' : '<?php echo esc_js( __( 'Add to Bag', 'nia-theme' ) ); ?>'"
+						></button>
+					</div>
+				</div>
+			</template>
+		</div>
+	</div>
 
 </main>
 

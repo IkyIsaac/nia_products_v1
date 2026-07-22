@@ -165,3 +165,146 @@ document.addEventListener( 'click', function ( event ) {
 			grid.removeAttribute( 'aria-busy' );
 		} );
 } );
+
+/**
+ * Subscription page's "Subscribe Now" product picker (Alpine component,
+ * referenced as x-data="niaSubscribeModal" — see page-subscription.php).
+ * Data (subscribable products, cadence terms/discounts, login state) comes
+ * from niaSubscriptions, localized by Nia_Subscriptions::localize_subscribe_script().
+ * "Add to Bag" posts straight to WooCommerce's real cart (Nia_Subscriptions::
+ * ajax_add_subscription_to_cart()) at quantity = per-delivery qty × this
+ * cadence's cycle count, which is what makes "pay for the whole term at
+ * checkout" true — the cart total already covers every scheduled delivery.
+ *
+ * Registered via Alpine.data() on the alpine:init event rather than a bare
+ * global function: both alpine.min.js and main.js load with the `defer`
+ * attribute, and by the time deferred scripts run the document is already
+ * past 'loading' — Alpine's CDN build auto-starts as soon as it sees that,
+ * which can happen before this file (the next deferred script) has even
+ * executed. A bare x-data="niaSubscribeModal()" reference then throws
+ * "niaSubscribeModal is not defined". alpine:init is dispatched right
+ * before Alpine scans the DOM specifically so components can register in
+ * time regardless of that race.
+ */
+document.addEventListener( 'alpine:init', function () {
+	Alpine.data( 'niaSubscribeModal', function () {
+		var data = typeof niaSubscriptions !== 'undefined' ? niaSubscriptions : null;
+
+		return {
+			isOpen: false,
+			cadence: null,
+			cadenceLabel: '',
+			cadenceTerm: '',
+			discount: 0,
+			cycles: 1,
+			startDate: '',
+			minDate: '',
+			items: [],
+			loading: false,
+			error: '',
+			loggedIn: data ? data.loggedIn : false,
+			loginUrl: data ? data.loginUrl : '',
+
+			init: function () {
+				this.items = data
+					? data.products.map( function ( product ) {
+						return Object.assign( { qty: 0 }, product );
+					} )
+					: [];
+
+				var tomorrow = new Date();
+				tomorrow.setDate( tomorrow.getDate() + 1 );
+				this.minDate = tomorrow.toISOString().slice( 0, 10 );
+			},
+
+			open: function ( cadenceKey ) {
+				if ( ! data || ! data.cadences[ cadenceKey ] ) {
+					return;
+				}
+				var cadence = data.cadences[ cadenceKey ];
+
+				this.cadence = cadenceKey;
+				this.cadenceLabel = cadence.label;
+				this.cadenceTerm = cadence.term_label;
+				this.discount = cadence.discount;
+				this.cycles = cadence.cycles;
+				this.startDate = this.minDate;
+				this.error = '';
+				this.items.forEach( function ( item ) {
+					item.qty = 0;
+				} );
+				this.isOpen = true;
+			},
+
+			get hasSelection() {
+				return this.items.some( function ( item ) {
+					return item.qty > 0;
+				} );
+			},
+
+			get estimatedTotalLabel() {
+				var discountMultiplier = 1 - this.discount / 100;
+				var total = this.items.reduce(
+					function ( sum, item ) {
+						return sum + item.price * item.qty * this.cycles * discountMultiplier;
+					}.bind( this ),
+					0
+				);
+				return Math.round( total ).toLocaleString() + ' TZS';
+			},
+
+			submit: function () {
+				if ( ! data || this.loading || ! this.hasSelection || ! this.startDate ) {
+					return;
+				}
+				this.loading = true;
+				this.error = '';
+
+				var selected = this.items
+					.filter( function ( item ) {
+						return item.qty > 0;
+					} )
+					.map( function ( item ) {
+						return { product_id: item.id, quantity: item.qty };
+					} );
+
+				var body = new URLSearchParams( {
+					action: 'nia_subscribe_add_to_cart',
+					nonce: data.nonce,
+					cadence: this.cadence,
+					start_date: this.startDate,
+					items: JSON.stringify( selected ),
+				} );
+
+				fetch( data.ajaxUrl, {
+					method: 'POST',
+					credentials: 'same-origin',
+					headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+					body: body.toString(),
+				} )
+					.then( function ( response ) {
+						return response.json();
+					} )
+					.then(
+						function ( json ) {
+							if ( json.success ) {
+								window.location.href = json.data.redirect;
+								return;
+							}
+							this.error = ( json.data && json.data.message ) || 'Something went wrong — please try again.';
+						}.bind( this )
+					)
+					.catch(
+						function () {
+							this.error = 'Something went wrong — please try again.';
+						}.bind( this )
+					)
+					.finally(
+						function () {
+							this.loading = false;
+						}.bind( this )
+					);
+			},
+		};
+	} );
+} );

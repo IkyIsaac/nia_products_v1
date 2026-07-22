@@ -97,8 +97,18 @@ function nia_theme_enqueue_assets() {
 
 	// Self-hosted (ARCHITECTURE.md §3) — reactive components (mobile drawer,
 	// accordions, quantity stepper) declared inline via x-data/x-show.
-	wp_enqueue_script( 'nia-alpine', NIA_THEME_URI . '/assets/js/alpine.min.js', array(), '3.14.1', array( 'strategy' => 'defer' ) );
+	// nia-main must execute before nia-alpine, not just be enqueued before
+	// it: both load with the `defer` attribute, and by the time deferred
+	// scripts run the document is already past 'loading', so Alpine's CDN
+	// build auto-starts (dispatching alpine:init) as part of its own
+	// script execution rather than waiting for anything — if nia-main
+	// executes even one tick later, its addEventListener( 'alpine:init', ... )
+	// (main.js's Alpine.data() registrations) registers after the event
+	// already fired. Declaring nia-alpine "dependent on" nia-main is not a
+	// real code dependency, just how WP_Scripts is told to guarantee that
+	// output order.
 	wp_enqueue_script( 'nia-main', NIA_THEME_URI . '/assets/js/main.js', array(), NIA_THEME_VERSION, array( 'strategy' => 'defer' ) );
+	wp_enqueue_script( 'nia-alpine', NIA_THEME_URI . '/assets/js/alpine.min.js', array( 'nia-main' ), '3.14.1', array( 'strategy' => 'defer' ) );
 }
 add_action( 'wp_enqueue_scripts', 'nia_theme_enqueue_assets' );
 

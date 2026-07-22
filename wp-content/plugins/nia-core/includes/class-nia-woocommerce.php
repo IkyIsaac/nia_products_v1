@@ -73,18 +73,84 @@ class Nia_Woocommerce {
 	}
 
 	/**
-	 * "My Rituals" endpoint content — empty state until Phase 9's
-	 * subscription engine exists (ARCHITECTURE.md §5).
+	 * "My Rituals" endpoint content. Real data once a subscription exists
+	 * (Nia_Subscriptions, PROJECT_PLAN.md Phase 9) — honest empty state
+	 * otherwise. Pause/cancel are intentionally not offered yet: what
+	 * "pause" means mid-term (skip one cycle vs. shift the whole schedule
+	 * vs. forfeit it) is a business rule that hasn't been decided, so this
+	 * only ever displays status, never lets the customer change it — see
+	 * RISKS.md R12 and PROJECT_PLAN.md Phase 9's own checklist, which
+	 * treats pause/cancel as separate follow-up work.
 	 */
 	public function render_my_rituals_endpoint() {
+		$subscriptions = Nia_Subscriptions::get_customer_subscriptions( get_current_user_id() );
+
+		if ( ! $subscriptions ) {
+			?>
+			<div class="nia-account-empty-state">
+				<span class="material-symbols-outlined text-primary text-4xl">auto_awesome</span>
+				<h2 class="font-headline-md text-headline-md mt-4 mb-2"><?php esc_html_e( 'No active ritual yet', 'nia-theme' ); ?></h2>
+				<p class="font-body-md text-on-surface-variant mb-8">
+					<?php esc_html_e( 'Subscribe to a ritual and your subscribed products, delivery schedule, and status will appear here.', 'nia-theme' ); ?>
+				</p>
+				<a class="btn-primary" href="<?php echo esc_url( home_url( '/subscription/' ) ); ?>"><?php esc_html_e( 'Explore the Ritual', 'nia-theme' ); ?></a>
+			</div>
+			<?php
+			return;
+		}
+
+		$cadences = Nia_Subscriptions::get_cadences();
 		?>
-		<div class="nia-account-empty-state">
-			<span class="material-symbols-outlined text-primary text-4xl">auto_awesome</span>
-			<h2 class="font-headline-md text-headline-md mt-4 mb-2"><?php esc_html_e( 'No active ritual yet', 'nia-theme' ); ?></h2>
-			<p class="font-body-md text-on-surface-variant mb-8">
-				<?php esc_html_e( 'Subscriptions launch in a future update. Once available, your subscribed products, next delivery date, and pause/cancel controls will appear here.', 'nia-theme' ); ?>
-			</p>
-			<a class="btn-primary" href="<?php echo esc_url( home_url( '/subscription/' ) ); ?>"><?php esc_html_e( 'Explore the Ritual', 'nia-theme' ); ?></a>
+		<div class="space-y-6">
+			<?php foreach ( $subscriptions as $subscription ) : ?>
+				<?php
+				$cadence_key = get_post_meta( $subscription->ID, '_nia_cadence', true );
+				$cadence     = $cadences[ $cadence_key ] ?? null;
+				$products    = (array) get_post_meta( $subscription->ID, '_nia_products', true );
+				$schedule    = (array) get_post_meta( $subscription->ID, '_nia_schedule', true );
+				$status      = get_post_meta( $subscription->ID, '_nia_status', true );
+				$status      = $status ? $status : 'active';
+				$next        = Nia_Subscriptions::get_next_delivery_date( $schedule );
+				?>
+				<div class="bg-off-white sunlight-shadow rounded-xl p-8">
+					<div class="flex items-start justify-between gap-4 flex-wrap mb-6">
+						<div>
+							<p class="font-label-lg text-label-lg text-primary uppercase tracking-widest mb-1"><?php echo esc_html( $cadence['label'] ?? $cadence_key ); ?></p>
+							<h3 class="font-headline-md text-headline-md text-on-background"><?php echo esc_html( $cadence['term_label'] ?? '' ); ?></h3>
+						</div>
+						<span class="px-3 py-1 bg-primary/10 text-primary font-label-md text-label-md rounded-full uppercase"><?php echo esc_html( ucfirst( $status ) ); ?></span>
+					</div>
+
+					<ul class="space-y-2 mb-6">
+						<?php foreach ( $products as $line ) : ?>
+							<?php $product = wc_get_product( $line['product_id'] ); ?>
+							<?php if ( $product ) : ?>
+								<li class="font-body-md text-on-surface-variant">
+									<?php
+									echo esc_html( $product->get_name() . ' × ' . (int) $line['quantity'] . ' — ' );
+									echo wp_kses_post( wc_price( $line['unit_price'] ) );
+									esc_html_e( ' / delivery', 'nia-theme' );
+									?>
+								</li>
+							<?php endif; ?>
+						<?php endforeach; ?>
+					</ul>
+
+					<div class="flex items-center justify-between gap-4 pt-4 border-t border-warm-grey">
+						<p class="font-label-md text-label-md uppercase tracking-widest text-on-surface-variant">
+							<?php if ( $next ) : ?>
+								<?php
+								/* translators: %s: next delivery date */
+								echo esc_html( sprintf( __( 'Next delivery: %s', 'nia-theme' ), date_i18n( get_option( 'date_format' ), strtotime( $next ) ) ) );
+								?>
+							<?php else : ?>
+								<?php esc_html_e( 'All deliveries complete', 'nia-theme' ); ?>
+							<?php endif; ?>
+						</p>
+					</div>
+				</div>
+			<?php endforeach; ?>
+			<p class="font-body-md text-sm text-on-surface-variant"><?php esc_html_e( 'Pausing or cancelling a ritual is coming in a future update — contact us if you need changes in the meantime.', 'nia-theme' ); ?></p>
 		</div>
 		<?php
 	}

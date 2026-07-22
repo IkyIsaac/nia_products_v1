@@ -275,10 +275,22 @@
   .nia-star-picker__star {
     @apply cursor-pointer text-warm-grey premium-transition;
   }
+  .nia-star-picker__star .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0;
+  }
   .nia-star-picker input:checked ~ label.nia-star-picker__star,
   .nia-star-picker label.nia-star-picker__star:hover,
   .nia-star-picker label.nia-star-picker__star:hover ~ label.nia-star-picker__star {
     @apply text-primary;
+  }
+  /* Color alone (above) still leaves the Material Symbols glyph in its
+     outline/frame variant — the average-rating display elsewhere sets
+     'FILL' 1 per filled star (content-single-product.php), so match that
+     here too instead of just recoloring the outline. */
+  .nia-star-picker input:checked ~ label.nia-star-picker__star .material-symbols-outlined,
+  .nia-star-picker label.nia-star-picker__star:hover .material-symbols-outlined,
+  .nia-star-picker label.nia-star-picker__star:hover ~ label.nia-star-picker__star .material-symbols-outlined {
+    font-variation-settings: 'FILL' 1;
   }
 
   /* PROJECT_PLAN.md Phase 6 — Cart (my-cart.html), re-themed via

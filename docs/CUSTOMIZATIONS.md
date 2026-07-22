@@ -119,15 +119,21 @@ Status values: **Not Started** · **In Progress** · **Review** · **Completed**
 |---|---|---|---|
 | Low-stock owner alert (WhatsApp + email) | Hook: `woocommerce_low_stock` / `woocommerce_no_stock` | — | Not Started |
 
-## Subscriptions (custom engine — see `ARCHITECTURE.md` §5)
+## Subscriptions (custom engine — see `ARCHITECTURE.md` §5, pay-upfront model revised 2026-07-22)
 
 | Customization | Mechanism | Why not a hook (if override) | Status |
 |---|---|---|---|
-| `nia_subscription` custom post type registration | `register_post_type` in Nia Core | — | Not Started |
-| Subscription creation at checkout | Hook: `woocommerce_checkout_order_processed` | — | Not Started |
-| Daily renewal cron | `wp_schedule_event` + custom cron callback | — | Not Started |
-| Renewal order creation | `wc_create_order()` programmatically from cron callback | — | Not Started |
-| Grace-window pause + owner alert | Cron callback checking days-overdue against setting | — | Not Started |
+| `nia_subscription` custom post type registration | `register_post_type` in `class-nia-subscriptions.php` (Nia Core) — admin-only, native list-table + edit-screen meta box, no bespoke admin page | — | Completed (2026-07-22) |
+| Discount settings (one % per cadence) | `add_options_page` + Settings API, Settings → Nia Subscriptions | — | Completed (2026-07-22) — dummy defaults (10/15/20%) |
+| Subscription product picker (Subscription page) | Alpine component (`niaSubscribeModal`, `assets/js/main.js`, registered via `Alpine.data()` on `alpine:init` — see note below) + AJAX add-to-cart | — | Completed (2026-07-22) |
+| Subscription cart-item tagging + discounted pricing | Hooks: `woocommerce_add_cart_item_data`, `woocommerce_before_calculate_totals` (price override via `set_price()`), `woocommerce_get_item_data` (cadence/schedule display line) | — | Completed (2026-07-22) |
+| Cart-item meta → order-item meta | Hook: `woocommerce_checkout_create_order_line_item` | — | Completed (2026-07-22) |
+| Subscription record + schedule creation from a paid order | Hook: `woocommerce_thankyou` — groups tagged order line items by cadence+start-date, computes the delivery schedule | — | Completed (2026-07-22) |
+| My Account → My Rituals real data | `Nia_Woocommerce::render_my_rituals_endpoint()` reads `Nia_Subscriptions::get_customer_subscriptions()` | — | Completed (2026-07-22) — read-only; pause/cancel deferred |
+| Pause/cancel a subscription mid-term | — | — | Not Started — deferred, see `RISKS.md` R12 |
+| Delivery-date WhatsApp/email reminders | — | — | Not Started — Phase 8 territory; `_nia_schedule` data already exists for it |
+
+**Script-order note:** `nia-main` (main.js) is now enqueued *before* `nia-alpine` (`functions.php`), reversing the theme's original order. Both load with the `defer` attribute; by the time deferred scripts run the document is already past `loading`, so Alpine's CDN build auto-starts as part of its own script execution rather than waiting for anything further — if main.js (which registers `Alpine.data('niaSubscribeModal', ...)` on the `alpine:init` event) executes even one tick after Alpine does, that registration happens too late and `x-data="niaSubscribeModal"` throws "not defined". Declaring `nia-alpine` as WP-dependent on `nia-main` isn't a real code dependency, just how `wp_enqueue_script()` is told to guarantee that output order.
 
 ---
 

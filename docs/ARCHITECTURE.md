@@ -110,13 +110,17 @@ Why this needs a real decision (not just "install the plugin"):
 - The mockup's own payment methods (M-Pesa, Tigo Pesa, Airtel Money — mobile money) generally **cannot be silently re-charged** the way a saved card can; mobile money confirmation typically requires the customer to actively approve a push/USSD prompt at time of charge. This is a real technical constraint, not a design choice, and it must be validated against Selcom's actual API capabilities before Phase 9 (flagged in `RISKS.md`).
 - Paying for a plugin whose core value proposition (silent auto-rebilling) likely doesn't work for the majority of this customer base's payment methods is poor value, and "avoid unnecessary plugins" applies directly.
 
-**v1 model — "renewal request," not silent auto-charge:**
-1. Customer subscribes to a tier (Weekly/Bi-weekly/Monthly — see `DESIGN_SYSTEM.md` §10) at checkout; Nia Core stores the subscription (product, tier, cadence, next-renewal-date) as custom post data tied to the customer.
-2. A daily cron job (`subscription-renewals.php`) finds subscriptions due for renewal, creates a new WooCommerce order in `pending payment` status, and triggers a WhatsApp + email "Your ritual is ready to renew — pay now" notification with a direct payment link (Selcom checkout URL for that order).
-3. Customer approves payment as a normal one-off Selcom transaction; standard `woocommerce_order_status_changed` hooks handle fulfillment identically to a regular order.
-4. If unpaid after a configurable grace window, a reminder is sent once more, then the subscription is marked "paused" and the owner is notified.
+**v1 model, revised 2026-07-22 — "pay upfront for the whole term," not renewal request or silent auto-charge:**
 
-This is intentionally simple, fully hook-driven, and requires no third-party subscription plugin. **Upgrade path:** if Selcom confirms true tokenized recurring debit is available and the business wants zero-touch renewal, WooCommerce Subscriptions (or an extension of this same custom engine to auto-charge via that token) can be layered in later without re-architecting the storefront — the recurring-order *data model* stays the same either way.
+The original plan below (renewal-request-per-cycle, revisited each cadence via a payment link) has been superseded by a simpler client decision: the customer pays for the *entire committed term* in one checkout. This sidesteps the mobile-money re-billing problem in the "why this needs a real decision" section above entirely for v1 — there is no recurring charge to collect at all, so it doesn't matter that mobile money can't be silently re-charged.
+
+1. Each cadence has a fixed term: Weekly = 1 month (4 deliveries), Bi-weekly = 3 months (6 deliveries), Monthly = 6 months (6 deliveries) — admin-editable discount percentage per cadence (Settings → Nia Subscriptions), not per product.
+2. Customer picks one or more products + a cadence + a first-delivery date (Subscription page's product picker); this adds each product to the cart at `quantity = per-delivery qty × that cadence's cycle count`, at the discounted price — so the real WooCommerce cart/checkout total already *is* the full-term payment. No new payment gateway work needed; today's placeholder Cash-on-Delivery method (Phase 5) works the same as for any other order.
+3. On order completion (`woocommerce_thankyou`), Nia Core groups the order's subscription-tagged line items and creates one `nia_subscription` post per cadence+start-date group, with a computed delivery schedule (`[{cycle, date, status}]`) — a shipping checklist against an already-paid order, not a new payable event. Admin sees/manages it via the CPT's native list-table + edit-screen meta box (no bespoke admin page).
+4. Customer sees the same data (read-only) in My Account → My Rituals.
+5. **Deferred, not built yet:** pausing/cancelling an active subscription mid-term (what "pause" means — skip one cycle, shift the whole schedule, forfeit it — is an undecided business rule, see `RISKS.md` R12) and automated delivery-date reminders (WhatsApp/email, Phase 8 territory — the schedule data this needs already exists).
+
+**Upgrade path unchanged:** if Selcom later confirms true tokenized recurring debit and the business wants a true subscribe-and-forget model instead of pay-per-term, that's a different, larger change (real recurring charges instead of one lump sum) — not covered by this note.
 
 ---
 

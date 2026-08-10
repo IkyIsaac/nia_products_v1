@@ -151,6 +151,22 @@ Status values: **Not Started** · **In Progress** · **Review** · **Completed**
 
 ---
 
+## Admin Dashboard (client-facing wp-admin polish, added 2026-08-10)
+
+Scoped, not global — see `class-nia-admin.php`'s own docblock. Only enqueues on screens this plugin has actually redesigned (`Nia_Admin::$screens`, just `dashboard` today) so third-party admin screens (Wordfence, Rank Math, Elementor, core Settings) are never touched. Tokens live in a separate `--nia-*` CSS variable set (`assets/css/admin.css`) rather than reusing the frontend's compiled Tailwind build, since wp-admin's own markup already uses plain class names (`.button`, `.notice`, `.widget`) a Tailwind reset/utility set would collide with.
+
+| Customization | Mechanism | Why not a hook (if override) | Status |
+|---|---|---|---|
+| "Nia Nutrition — Overview" dashboard widget | `wp_dashboard_setup` — `wp_add_dashboard_widget()`, `normal`/`high` context/priority so it sits above WooCommerce's and Elementor's own high-priority setup widgets | — | Completed (2026-08-10) |
+| Default dashboard widget cleanup | `remove_meta_box()` for `woocommerce_dashboard_status`, `woocommerce_dashboard_recent_reviews`, `dashboard_primary` (WP Events & News), `dashboard_quick_press`, `dashboard_activity` — our widget supersedes the first two with a broader, real-data view; the rest were pure clutter for a store-focused dashboard | — | Completed (2026-08-10) — "At a Glance" and "Site Health Status" were kept (still genuinely useful: Journal post/page counts, site health) |
+| KPI cards (Revenue 7d, Needs Attention, Active Rituals + deliveries due, Low Stock, Pending Reviews) | Real data: `wc_get_orders()`/`wc_get_is_paid_statuses()` for revenue, `wc_orders_count()` for processing/on-hold, `nia_subscription` post meta (`_nia_schedule`) for delivery due-dates, the same `wc_product_meta_lookup` query WooCommerce's own core "Low in stock" status widget uses (so the threshold behavior matches Settings → Products → Inventory exactly), `get_comments()` for pending review moderation count | — | Completed (2026-08-10) — verified against real dev data (1 processing order, 2 active subscriptions with correct next-delivery dates, 0 low stock, 0 pending reviews) |
+| Upcoming Deliveries / Low Stock Products mini-lists | Same data as the KPI cards above, top 5 each, linking to the relevant edit screen (subscription/product) | — | Completed (2026-08-10) |
+| Overview data caching | 5-minute transient (`nia_admin_overview_data`), invalidated early on `woocommerce_order_status_changed`, `save_post_nia_subscription`, `transition_comment_status` | Keeps the dashboard from re-running 4 queries on every load, without showing stale "needs attention" numbers right after the client acts on one | Completed (2026-08-10) |
+
+**Not built this pass (future admin-redesign phases, per the client's approved plan):** Orders-screen status pills (reusing the same palette as the frontend Order History pills), Products-screen stock/category polish, Subscriptions-screen cadence/status pills and overdue-delivery flagging, Reviews-screen (Comments) rating/helpful-count columns, and a branded `wp-login.php`. Each will extend `Nia_Admin::$screens` and `admin.css` rather than starting a second admin design system.
+
+---
+
 ## Rule for adding new rows
 
 Any WooCommerce customization not listed above must be added here **before** it's built, with its mechanism decided (hook vs. override) and justified if it's an override. If you find yourself about to copy a WooCommerce template file into the theme, stop and check this file first — if it's not listed, add it and justify the override before proceeding.

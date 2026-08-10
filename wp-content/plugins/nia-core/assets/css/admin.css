@@ -1,0 +1,174 @@
+/**
+ * Admin dashboard polish (PROJECT_PLAN.md admin redesign, Phase A/B).
+ *
+ * Scoped, not global: only enqueued on the specific screens listed in
+ * Nia_Admin::$screens (class-nia-admin.php), so third-party admin screens
+ * (Wordfence, Rank Math, Elementor, core Settings pages) are never touched.
+ * Tokens mirror DESIGN_SYSTEM.md's palette but are kept as a separate
+ * `--nia-*` variable set rather than reusing the frontend's compiled
+ * Tailwind build — wp-admin's own markup already uses plain class names
+ * (`.button`, `.notice`, `.widget`) that a Tailwind reset/utility set would
+ * collide with.
+ */
+
+body.wp-admin {
+	--nia-primary: #e07a10;
+	--nia-primary-10: #fcf2e7; /* ~10% primary tint over white, for soft accents/badges */
+	--nia-primary-container: #ffd8a8;
+	--nia-on-primary-container: #241400;
+	--nia-error: #ba1a1a;
+	--nia-error-container: #ffdad6;
+	--nia-on-error-container: #93000a;
+	--nia-surface-container-lowest: #ffffff;
+	--nia-surface-variant: #f2ece0;
+	--nia-on-surface: #1e1a10;
+	--nia-on-surface-variant: #4d4534;
+	--nia-radius: 12px;
+}
+
+/* ---------------------------------------------------------------------
+ * Dashboard "Overview" widget
+ * ------------------------------------------------------------------- */
+
+.nia-admin-overview .inside {
+	margin: 0;
+	padding: 0;
+}
+
+.nia-admin-kpi-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+	gap: 12px;
+	padding: 12px;
+}
+
+.nia-admin-kpi-card {
+	display: block;
+	background: var(--nia-surface-container-lowest);
+	border: 1px solid var(--nia-surface-variant);
+	border-radius: var(--nia-radius);
+	padding: 14px 16px;
+	text-decoration: none;
+	box-shadow: none;
+	transition: box-shadow 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
+}
+
+.nia-admin-kpi-card:hover,
+.nia-admin-kpi-card:focus {
+	box-shadow: 0 4px 14px rgba(224, 122, 16, 0.14);
+	transform: translateY(-1px);
+	border-color: var(--nia-primary-container);
+}
+
+.nia-admin-kpi-card--accent {
+	background: var(--nia-primary-10);
+	border-color: var(--nia-primary-container);
+}
+
+.nia-admin-kpi-card--alert {
+	border-color: var(--nia-error-container);
+}
+
+.nia-admin-kpi-card--alert .nia-admin-kpi-card__value {
+	color: var(--nia-error);
+}
+
+.nia-admin-kpi-card__label {
+	margin: 0 0 6px;
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: var(--nia-on-surface-variant);
+}
+
+.nia-admin-kpi-card__value {
+	font-size: 24px;
+	line-height: 1.2;
+	font-weight: 700;
+	color: var(--nia-on-surface);
+}
+
+.nia-admin-kpi-card__meta {
+	margin: 4px 0 0;
+	font-size: 12px;
+	color: var(--nia-on-surface-variant);
+}
+
+.nia-admin-lists {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 0;
+	border-top: 1px solid var(--nia-surface-variant);
+}
+
+.nia-admin-lists .nia-admin-list:first-child {
+	border-right: 1px solid var(--nia-surface-variant);
+}
+
+@media (max-width: 782px) {
+	.nia-admin-lists {
+		grid-template-columns: 1fr;
+	}
+
+	.nia-admin-lists .nia-admin-list:first-child {
+		border-right: none;
+		border-bottom: 1px solid var(--nia-surface-variant);
+	}
+}
+
+.nia-admin-list {
+	padding: 14px 16px;
+}
+
+.nia-admin-list h3 {
+	margin: 0 0 10px;
+	font-size: 12px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: var(--nia-on-surface-variant);
+}
+
+.nia-admin-list ul {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.nia-admin-list li {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 7px 0;
+	border-bottom: 1px solid var(--nia-surface-variant);
+	font-size: 13px;
+}
+
+.nia-admin-list li:last-child {
+	border-bottom: none;
+}
+
+.nia-admin-list li a {
+	color: var(--nia-on-surface);
+	text-decoration: none;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.nia-admin-list li a:hover {
+	color: var(--nia-primary);
+}
+
+.nia-admin-list li span {
+	flex-shrink: 0;
+	color: var(--nia-on-surface-variant);
+}
+
+.nia-admin-empty {
+	margin: 0;
+	font-size: 13px;
+	color: var(--nia-on-surface-variant);
+}

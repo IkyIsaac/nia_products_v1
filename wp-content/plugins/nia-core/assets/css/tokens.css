@@ -1,0 +1,32 @@
+/**
+ * Shared admin design tokens (DESIGN_SYSTEM.md palette, `--nia-*` variable
+ * set). Enqueued globally, first, as a dependency of both admin-chrome.css
+ * (sitewide wp-admin chrome) and admin.css (screen-scoped component
+ * styles) — single source so the two never drift out of sync.
+ *
+ * Kept as a separate `--nia-*` set rather than reusing the frontend's
+ * compiled Tailwind build — wp-admin's own markup already uses plain class
+ * names (`.button`, `.notice`, `.widget`) a Tailwind reset/utility set
+ * would collide with.
+ */
+
+body.wp-admin {
+	--nia-primary: #e07a10;
+	--nia-primary-10: #fcf2e7; /* ~10% primary tint over white, for soft accents/badges */
+	--nia-primary-container: #ffd8a8;
+	--nia-primary-fixed-dim: #cc6a08; /* deeper accent — button hover states */
+	--nia-on-primary-container: #241400;
+	--nia-tertiary-container: #f0d0f0;
+	--nia-on-tertiary-container: #2a1a2a;
+	--nia-error: #ba1a1a;
+	--nia-error-container: #ffdad6;
+	--nia-on-error-container: #93000a;
+	--nia-surface: #fffcf5; /* off-white — text on the dark chrome */
+	--nia-surface-container-lowest: #ffffff;
+	--nia-surface-container-low: #fef8ec;
+	--nia-surface-container: #f8f0e0;
+	--nia-surface-variant: #f2ece0;
+	--nia-on-surface: #1e1a10; /* also this admin's dark chrome background */
+	--nia-on-surface-variant: #4d4534;
+	--nia-radius: 12px;
+}

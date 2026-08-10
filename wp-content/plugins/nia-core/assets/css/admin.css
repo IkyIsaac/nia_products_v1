@@ -1,38 +1,115 @@
 /**
- * Admin dashboard polish (PROJECT_PLAN.md admin redesign, Phase A/B).
+ * Admin component styles (PROJECT_PLAN.md admin redesign, Phase A/B/C+).
  *
  * Scoped, not global: only enqueued on the specific screens listed in
  * Nia_Admin::$screens (class-nia-admin.php), so third-party admin screens
  * (Wordfence, Rank Math, Elementor, core Settings pages) are never touched.
- * Tokens mirror DESIGN_SYSTEM.md's palette but are kept as a separate
- * `--nia-*` variable set rather than reusing the frontend's compiled
- * Tailwind build — wp-admin's own markup already uses plain class names
- * (`.button`, `.notice`, `.widget`) that a Tailwind reset/utility set would
- * collide with.
+ * Sitewide chrome (menu, toolbar, buttons, notices) lives in the separate
+ * admin-chrome.css, enqueued admin-wide. Tokens live in tokens.css, loaded
+ * first as a dependency of both.
  */
-
-body.wp-admin {
-	--nia-primary: #e07a10;
-	--nia-primary-10: #fcf2e7; /* ~10% primary tint over white, for soft accents/badges */
-	--nia-primary-container: #ffd8a8;
-	--nia-on-primary-container: #241400;
-	--nia-error: #ba1a1a;
-	--nia-error-container: #ffdad6;
-	--nia-on-error-container: #93000a;
-	--nia-surface-container-lowest: #ffffff;
-	--nia-surface-variant: #f2ece0;
-	--nia-on-surface: #1e1a10;
-	--nia-on-surface-variant: #4d4534;
-	--nia-radius: 12px;
-}
 
 /* ---------------------------------------------------------------------
  * Dashboard "Overview" widget
  * ------------------------------------------------------------------- */
 
+#nia_admin_overview .postbox-header {
+	background: linear-gradient(135deg, var(--nia-on-surface) 0%, #33291a 100%);
+	border-bottom: none;
+}
+
+#nia_admin_overview .hndle {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 4px 4px 4px 0;
+	color: var(--nia-surface);
+	font-family: 'Playfair Display', Georgia, serif;
+	font-size: 16px;
+}
+
+.nia-admin-widget-icon {
+	color: var(--nia-primary);
+	font-size: 20px !important;
+}
+
 .nia-admin-overview .inside {
 	margin: 0;
 	padding: 0;
+}
+
+/* Hero card — Revenue, given visual priority over the secondary metrics
+ * (icon + trend delta) rather than sitting equal-weight in the grid. */
+.nia-admin-hero-card {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	margin: 12px 12px 0;
+	padding: 20px;
+	background: linear-gradient(135deg, var(--nia-primary-10) 0%, var(--nia-surface-container-lowest) 100%);
+	border: 1px solid var(--nia-primary-container);
+	border-radius: var(--nia-radius);
+	text-decoration: none;
+	transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.nia-admin-hero-card:hover,
+.nia-admin-hero-card:focus {
+	box-shadow: 0 6px 20px rgba(224, 122, 16, 0.16);
+	transform: translateY(-1px);
+}
+
+.nia-admin-hero-card__icon {
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 52px;
+	height: 52px;
+	border-radius: 50%;
+	background: var(--nia-primary);
+	color: var(--nia-surface);
+	font-size: 26px !important;
+}
+
+.nia-admin-hero-card__body {
+	flex: 1;
+	min-width: 0;
+}
+
+.nia-admin-hero-card__value {
+	margin: 2px 0 0;
+	font-family: 'Playfair Display', Georgia, serif;
+	font-size: 32px;
+	line-height: 1.15;
+	font-weight: 600;
+	color: var(--nia-on-surface);
+}
+
+.nia-admin-trend {
+	flex-shrink: 0;
+	display: inline-flex;
+	align-items: center;
+	gap: 2px;
+	padding: 5px 10px;
+	border-radius: 999px;
+	font-family: Montserrat, -apple-system, sans-serif;
+	font-size: 12px;
+	font-weight: 700;
+}
+
+.nia-admin-trend .material-symbols-outlined {
+	font-size: 16px !important;
+}
+
+.nia-admin-trend--up {
+	background: var(--nia-primary-10);
+	color: var(--nia-primary-fixed-dim);
+}
+
+.nia-admin-trend--down {
+	background: var(--nia-error-container);
+	color: var(--nia-on-error-container);
 }
 
 .nia-admin-kpi-grid {
@@ -43,11 +120,12 @@ body.wp-admin {
 }
 
 .nia-admin-kpi-card {
+	position: relative;
 	display: block;
 	background: var(--nia-surface-container-lowest);
 	border: 1px solid var(--nia-surface-variant);
 	border-radius: var(--nia-radius);
-	padding: 14px 16px;
+	padding: 16px;
 	text-decoration: none;
 	box-shadow: none;
 	transition: box-shadow 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
@@ -60,11 +138,6 @@ body.wp-admin {
 	border-color: var(--nia-primary-container);
 }
 
-.nia-admin-kpi-card--accent {
-	background: var(--nia-primary-10);
-	border-color: var(--nia-primary-container);
-}
-
 .nia-admin-kpi-card--alert {
 	border-color: var(--nia-error-container);
 }
@@ -73,8 +146,27 @@ body.wp-admin {
 	color: var(--nia-error);
 }
 
+.nia-admin-kpi-card--alert .nia-admin-kpi-card__icon {
+	background: var(--nia-error-container);
+	color: var(--nia-on-error-container);
+}
+
+.nia-admin-kpi-card__icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	margin-bottom: 10px;
+	border-radius: 50%;
+	background: var(--nia-surface-container);
+	color: var(--nia-on-surface-variant);
+	font-size: 18px !important;
+}
+
 .nia-admin-kpi-card__label {
 	margin: 0 0 6px;
+	font-family: Montserrat, -apple-system, sans-serif;
 	font-size: 11px;
 	font-weight: 600;
 	text-transform: uppercase;
@@ -83,14 +175,16 @@ body.wp-admin {
 }
 
 .nia-admin-kpi-card__value {
-	font-size: 24px;
+	font-family: 'Playfair Display', Georgia, serif;
+	font-size: 26px;
 	line-height: 1.2;
-	font-weight: 700;
+	font-weight: 600;
 	color: var(--nia-on-surface);
 }
 
 .nia-admin-kpi-card__meta {
 	margin: 4px 0 0;
+	font-family: Montserrat, -apple-system, sans-serif;
 	font-size: 12px;
 	color: var(--nia-on-surface-variant);
 }
@@ -123,6 +217,7 @@ body.wp-admin {
 
 .nia-admin-list h3 {
 	margin: 0 0 10px;
+	font-family: Montserrat, -apple-system, sans-serif;
 	font-size: 12px;
 	font-weight: 600;
 	text-transform: uppercase;
@@ -170,5 +265,65 @@ body.wp-admin {
 .nia-admin-empty {
 	margin: 0;
 	font-size: 13px;
+	color: var(--nia-on-surface-variant);
+}
+
+/* ---------------------------------------------------------------------
+ * Orders list — status pills
+ *
+ * Re-themes WooCommerce core's own `.order-status` mark (both the HPOS
+ * and legacy admin order list tables render this exact stable markup —
+ * no template override or PHP hook needed) to the same color palette as
+ * the frontend Order History pills (Nia_Woocommerce::render_order_status_pill()),
+ * so status reads consistently across admin and customer-facing views.
+ * ------------------------------------------------------------------- */
+
+.order-status {
+	display: inline-flex;
+	align-items: center;
+	line-height: 1;
+	padding: 6px 12px;
+	border-radius: 999px;
+	border-bottom: none;
+	background: var(--nia-surface-container-low);
+	color: var(--nia-on-surface-variant);
+	font-family: Montserrat, -apple-system, sans-serif;
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+.order-status > span {
+	margin: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.order-status.status-completed {
+	background: var(--nia-primary-10);
+	color: var(--nia-primary);
+}
+
+.order-status.status-processing {
+	background: var(--nia-surface-container);
+	color: var(--nia-on-surface);
+}
+
+.order-status.status-on-hold,
+.order-status.status-pending {
+	background: var(--nia-tertiary-container);
+	color: var(--nia-on-tertiary-container);
+}
+
+.order-status.status-cancelled,
+.order-status.status-failed,
+.order-status.status-trash {
+	background: var(--nia-error-container);
+	color: var(--nia-on-error-container);
+}
+
+.order-status.status-refunded {
+	background: var(--nia-surface-container-low);
 	color: var(--nia-on-surface-variant);
 }

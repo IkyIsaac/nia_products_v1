@@ -1,0 +1,140 @@
+/**
+ * Sitewide wp-admin chrome (PROJECT_PLAN.md admin redesign — chrome pass).
+ *
+ * Unlike admin.css (screen-scoped component styles), this loads on every
+ * wp-admin screen — deliberately, so the client's dashboard reads as one
+ * branded product rather than "stock WordPress with a widget on it" no
+ * matter which screen they're on. Kept deliberately narrow even so: only
+ * the persistent frame (menu, toolbar) and the two element types that
+ * appear on literally every screen (`.button-primary`, `.notice`) are
+ * touched — no plugin screen's own content/layout is altered, only how
+ * WordPress's own chrome around it is colored.
+ *
+ * Third-party plugin screens (Wordfence, Rank Math, Elementor, etc.) are
+ * unaffected beyond this shared frame — their own settings pages, tables,
+ * and controls render exactly as those plugins built them.
+ */
+
+/* ---------------------------------------------------------------------
+ * Admin menu (sidebar)
+ * ------------------------------------------------------------------- */
+
+#adminmenuback,
+#adminmenuwrap,
+#adminmenu,
+#adminmenu .wp-submenu {
+	background: var(--nia-on-surface);
+}
+
+#adminmenu a {
+	color: rgba(255, 252, 245, 0.75);
+}
+
+#adminmenu div.wp-menu-image::before {
+	color: rgba(255, 252, 245, 0.55);
+}
+
+#adminmenu a:hover,
+#adminmenu li.menu-top:hover,
+#adminmenu li.opensub > a.menu-top,
+#adminmenu li > a.menu-top:focus {
+	background: rgba(224, 122, 16, 0.12);
+	color: var(--nia-surface);
+}
+
+#adminmenu a:hover div.wp-menu-image::before,
+#adminmenu li.opensub > a.menu-top div.wp-menu-image::before {
+	color: var(--nia-primary);
+}
+
+#adminmenu li.wp-has-current-submenu a.wp-has-current-submenu,
+#adminmenu li.current a.menu-top {
+	background: var(--nia-primary);
+	color: var(--nia-on-primary-container);
+}
+
+#adminmenu li.wp-has-current-submenu div.wp-menu-image::before {
+	color: var(--nia-on-primary-container);
+}
+
+#adminmenu .wp-submenu li.current a,
+#adminmenu .wp-submenu li a:hover {
+	color: var(--nia-primary);
+}
+
+#adminmenu .wp-submenu li.current a {
+	font-weight: 600;
+}
+
+#adminmenu .wp-menu-separator {
+	background: rgba(255, 252, 245, 0.08);
+}
+
+#collapse-button .collapse-button-icon {
+	color: rgba(255, 252, 245, 0.6);
+}
+
+/* ---------------------------------------------------------------------
+ * Top toolbar
+ * ------------------------------------------------------------------- */
+
+#wpadminbar {
+	background: var(--nia-on-surface);
+	border-bottom: 2px solid var(--nia-primary);
+}
+
+#wpadminbar .ab-item,
+#wpadminbar a.ab-item,
+#wpadminbar > #wp-toolbar span.ab-icon::before,
+#wpadminbar > #wp-toolbar span.ab-label {
+	color: rgba(255, 252, 245, 0.75);
+}
+
+#wpadminbar .ab-top-menu > li:hover > .ab-item,
+#wpadminbar .ab-top-menu > li > .ab-item:focus {
+	color: var(--nia-surface);
+}
+
+#wpadminbar .quicklinks .ab-top-menu > li.hover > .ab-item,
+#wpadminbar.nojq .quicklinks .ab-top-menu > li:hover > .ab-item {
+	background: rgba(224, 122, 16, 0.16);
+}
+
+/* ---------------------------------------------------------------------
+ * Primary buttons — matches the frontend's .btn-primary-filled treatment
+ * (bg-primary, text-on-primary-container, hover bg-primary-fixed-dim).
+ * ------------------------------------------------------------------- */
+
+.wp-core-ui .button-primary {
+	background: var(--nia-primary);
+	border-color: var(--nia-primary-fixed-dim);
+	color: var(--nia-on-primary-container);
+	text-shadow: none;
+	box-shadow: none;
+}
+
+.wp-core-ui .button-primary:hover,
+.wp-core-ui .button-primary:focus {
+	background: var(--nia-primary-fixed-dim);
+	border-color: var(--nia-primary-fixed-dim);
+	color: var(--nia-surface);
+}
+
+.wp-core-ui .button-primary:focus {
+	box-shadow: 0 0 0 1px var(--nia-surface), 0 0 0 3px var(--nia-primary);
+}
+
+/* ---------------------------------------------------------------------
+ * Admin notices — same information, calmer presentation. Semantic
+ * left-border colors (warning/error/success/info) are left untouched;
+ * only spacing/shape/shadow are unified so a stack of plugin notices
+ * reads as one consistent system instead of each plugin's own default.
+ * ------------------------------------------------------------------- */
+
+.notice,
+div.updated,
+div.error {
+	border-radius: var(--nia-radius);
+	box-shadow: 0 1px 3px rgba(30, 26, 16, 0.06);
+	padding: 12px 16px;
+}

@@ -1,12 +1,22 @@
 <?php
 /**
  * Admin dashboard polish — a modern, data-real "Overview" widget replacing
- * WordPress's/WooCommerce's default dashboard widgets, plus the shared
- * asset-loading scaffolding later admin-screen redesigns (Orders, Products,
+ * WordPress's/WooCommerce's default dashboard widgets, a sitewide branded
+ * chrome pass (admin menu, toolbar, primary buttons, notices), and the
+ * shared asset-loading scaffolding later admin-screen redesigns (Products,
  * Subscriptions list polish) will extend. Everything here is additive
- * (hooks + a conditionally-enqueued stylesheet) — never a core admin
- * template override — so third-party admin screens (Wordfence, Rank Math,
- * Elementor) are left completely untouched.
+ * (hooks + enqueued stylesheets) — never a core admin template override —
+ * so third-party admin screens (Wordfence, Rank Math, Elementor) render
+ * their own content exactly as those plugins built it; only the shared
+ * frame around it (menu/toolbar/buttons/notices) is re-themed.
+ *
+ * Two stylesheets, two different footprints:
+ * - admin-chrome.css: sitewide (every wp-admin screen) — deliberately
+ *   narrow, touches only the persistent frame.
+ * - admin.css: screen-scoped (Nia_Admin::$screens only) — the larger
+ *   surface area of component-level redesigns (dashboard widget, Orders
+ *   list pills).
+ * Both depend on tokens.css for the shared `--nia-*` palette.
  *
  * @package Nia_Core
  */
@@ -24,14 +34,16 @@ class Nia_Admin {
 	const TRANSIENT_OVERVIEW = 'nia_admin_overview_data';
 
 	/**
-	 * Screen IDs the branded admin stylesheet loads on. Deliberately just
-	 * `dashboard` today — extend this list as later phases redesign more
-	 * screens (Orders, Products, Subscriptions), rather than loading the
-	 * stylesheet admin-wide.
+	 * Screen IDs the branded admin stylesheet loads on — extended one
+	 * redesigned screen at a time rather than loading the stylesheet
+	 * admin-wide. `woocommerce_page_wc-orders` is the HPOS Orders screen
+	 * (this install's active order-storage mode); `edit-shop_order` is the
+	 * legacy post-table equivalent, included for robustness if HPOS is ever
+	 * toggled off.
 	 *
 	 * @var string[]
 	 */
-	private $screens = array( 'dashboard' );
+	private $screens = array( 'dashboard', 'woocommerce_page_wc-orders', 'edit-shop_order' );
 
 	/**
 	 * Wire hooks.
@@ -48,15 +60,33 @@ class Nia_Admin {
 	}
 
 	/**
-	 * Enqueue the admin stylesheet only on screens this plugin has actually
-	 * redesigned.
+	 * Enqueue the shared tokens + sitewide chrome on every wp-admin screen,
+	 * and the larger component stylesheet (+ the theme's self-hosted brand
+	 * fonts) only on screens this plugin has actually redesigned.
 	 */
 	public function enqueue_assets() {
+		wp_enqueue_style( 'nia-admin-tokens', NIA_CORE_URI . 'assets/css/tokens.css', array(), NIA_CORE_VERSION );
+		wp_enqueue_style( 'nia-admin-chrome', NIA_CORE_URI . 'assets/css/admin-chrome.css', array( 'nia-admin-tokens' ), NIA_CORE_VERSION );
+
 		$screen = get_current_screen();
 		if ( ! $screen || ! in_array( $screen->id, $this->screens, true ) ) {
 			return;
 		}
-		wp_enqueue_style( 'nia-admin', NIA_CORE_URI . 'assets/css/admin.css', array(), NIA_CORE_VERSION );
+
+		// The theme's self-hosted Montserrat/Playfair Display/Material
+		// Symbols (assets/css/fonts.css, DESIGN_SYSTEM.md §2/§6) — reused
+		// as-is rather than duplicating @font-face declarations here.
+		// Reserved for our own component surfaces (widget numbers, order
+		// pills), not applied to WordPress's own UI text.
+		wp_enqueue_style( 'nia-theme-fonts', get_theme_file_uri( 'assets/css/fonts.css' ), array(), NIA_CORE_VERSION );
+
+		// Declared as WP-dependent on WooCommerce's own admin stylesheet
+		// (handle 'woocommerce_admin_styles') so ours always prints after
+		// it and wins the cascade on equal-specificity selectors like
+		// `.order-status.status-processing` — without this, load order
+		// between two plugins' styles isn't guaranteed, and WC's own
+		// default status colors silently won at least once during dev.
+		wp_enqueue_style( 'nia-admin', NIA_CORE_URI . 'assets/css/admin.css', array( 'nia-admin-tokens', 'nia-theme-fonts', 'woocommerce_admin_styles' ), NIA_CORE_VERSION );
 	}
 
 	/**
@@ -79,10 +109,14 @@ class Nia_Admin {
 		// Priority 'high' (not the default 'core') so this sits above
 		// WooCommerce's and Elementor's own "high"-priority setup widgets —
 		// it's meant to be the first thing the client sees, not just
-		// another item in the normal column.
+		// another item in the normal column. The title carries a raw
+		// Material Symbols icon span — WP core does the same for its own
+		// dashboard_php_nag widget (wp-admin/includes/template.php echoes
+		// $box['title'] unescaped), so this follows an established pattern
+		// rather than fighting one.
 		wp_add_dashboard_widget(
 			'nia_admin_overview',
-			__( 'Nia Nutrition — Overview', 'nia-theme' ),
+			'<span class="material-symbols-outlined nia-admin-widget-icon" aria-hidden="true">auto_awesome</span>' . __( 'Nia Nutrition — Overview', 'nia-theme' ),
 			array( $this, 'render_overview_widget' ),
 			null,
 			null,
@@ -106,7 +140,7 @@ class Nia_Admin {
 	 * Gather (or reuse cached) data for the Overview widget.
 	 *
 	 * @return array{
-	 *     revenue: array{total: float, count: int},
+	 *     revenue: array{total: float, count: int, trend: float|null},
 	 *     attention_count: int,
 	 *     subscriptions: array{active_count: int, due_soon: array},
 	 *     stock: array{count: int, items: array},
@@ -138,15 +172,43 @@ class Nia_Admin {
 	}
 
 	/**
-	 * Total + count of paid orders in the last 7 days.
+	 * Total + count of paid orders in the last 7 days, plus a trend
+	 * percentage against the 7 days before that — a bare total doesn't say
+	 * whether the client should feel good or concerned about it.
 	 *
-	 * @return array{total: float, count: int}
+	 * @return array{total: float, count: int, trend: float|null}
 	 */
 	private function get_recent_revenue() {
+		$now      = time();
+		$current  = $this->sum_paid_orders( $now - 7 * DAY_IN_SECONDS, $now );
+		$previous = $this->sum_paid_orders( $now - 14 * DAY_IN_SECONDS, $now - 7 * DAY_IN_SECONDS );
+
+		$trend = null; // No prior-period baseline to compare against.
+		if ( $previous['total'] > 0.0 ) {
+			$trend = ( ( $current['total'] - $previous['total'] ) / $previous['total'] ) * 100;
+		} elseif ( $current['total'] > 0.0 ) {
+			$trend = 100.0; // From nothing to something — a full increase, not a divide-by-zero.
+		}
+
+		return array(
+			'total' => $current['total'],
+			'count' => $current['count'],
+			'trend' => $trend,
+		);
+	}
+
+	/**
+	 * Total + count of paid orders created within a timestamp window.
+	 *
+	 * @param int $from Window start (unix timestamp, inclusive).
+	 * @param int $to   Window end (unix timestamp, exclusive).
+	 * @return array{total: float, count: int}
+	 */
+	private function sum_paid_orders( $from, $to ) {
 		$orders = wc_get_orders(
 			array(
 				'status'       => wc_get_is_paid_statuses(),
-				'date_created' => '>=' . ( time() - 7 * DAY_IN_SECONDS ),
+				'date_created' => $from . '...' . $to,
 				'limit'        => -1,
 				'return'       => 'objects',
 			)
@@ -274,16 +336,37 @@ class Nia_Admin {
 	}
 
 	/**
+	 * A trending-up/down pill next to the Revenue hero figure. Silent
+	 * (renders nothing) when there's no prior 7-day window to compare
+	 * against yet, rather than showing a misleading 0%/100%.
+	 *
+	 * @param float|null $trend Percentage change vs. the prior 7-day window.
+	 */
+	private function render_trend_badge( $trend ) {
+		if ( null === $trend ) {
+			return;
+		}
+		$up = $trend >= 0;
+		printf(
+			'<span class="nia-admin-trend %1$s"><span class="material-symbols-outlined" aria-hidden="true">%2$s</span>%3$s</span>',
+			esc_attr( $up ? 'nia-admin-trend--up' : 'nia-admin-trend--down' ),
+			esc_html( $up ? 'trending_up' : 'trending_down' ),
+			esc_html( ( $up ? '+' : '' ) . round( $trend ) . '%' )
+		);
+	}
+
+	/**
 	 * Render the Overview widget.
 	 */
 	public function render_overview_widget() {
 		$data = $this->get_overview_data();
 		?>
 		<div class="nia-admin-overview">
-			<div class="nia-admin-kpi-grid">
-				<a class="nia-admin-kpi-card nia-admin-kpi-card--accent" href="<?php echo esc_url( $this->get_orders_url() ); ?>">
+			<a class="nia-admin-hero-card" href="<?php echo esc_url( $this->get_orders_url() ); ?>">
+				<span class="material-symbols-outlined nia-admin-hero-card__icon" aria-hidden="true">payments</span>
+				<div class="nia-admin-hero-card__body">
 					<p class="nia-admin-kpi-card__label"><?php esc_html_e( 'Revenue', 'nia-theme' ); ?></p>
-					<p class="nia-admin-kpi-card__value"><?php echo wp_kses_post( wc_price( $data['revenue']['total'] ) ); ?></p>
+					<p class="nia-admin-hero-card__value"><?php echo wp_kses_post( wc_price( $data['revenue']['total'] ) ); ?></p>
 					<p class="nia-admin-kpi-card__meta">
 						<?php
 						echo esc_html(
@@ -295,15 +378,20 @@ class Nia_Admin {
 						);
 						?>
 					</p>
-				</a>
+				</div>
+				<?php $this->render_trend_badge( $data['revenue']['trend'] ?? null ); ?>
+			</a>
 
+			<div class="nia-admin-kpi-grid">
 				<a class="nia-admin-kpi-card<?php echo $data['attention_count'] > 0 ? ' nia-admin-kpi-card--alert' : ''; ?>" href="<?php echo esc_url( $this->get_orders_url( 'wc-processing' ) ); ?>">
+					<span class="material-symbols-outlined nia-admin-kpi-card__icon" aria-hidden="true">pending_actions</span>
 					<p class="nia-admin-kpi-card__label"><?php esc_html_e( 'Needs Attention', 'nia-theme' ); ?></p>
 					<p class="nia-admin-kpi-card__value"><?php echo esc_html( $data['attention_count'] ); ?></p>
 					<p class="nia-admin-kpi-card__meta"><?php esc_html_e( 'Processing + on-hold orders', 'nia-theme' ); ?></p>
 				</a>
 
 				<a class="nia-admin-kpi-card" href="<?php echo esc_url( admin_url( 'edit.php?post_type=nia_subscription' ) ); ?>">
+					<span class="material-symbols-outlined nia-admin-kpi-card__icon" aria-hidden="true">auto_awesome</span>
 					<p class="nia-admin-kpi-card__label"><?php esc_html_e( 'Active Rituals', 'nia-theme' ); ?></p>
 					<p class="nia-admin-kpi-card__value"><?php echo esc_html( $data['subscriptions']['active_count'] ); ?></p>
 					<p class="nia-admin-kpi-card__meta">
@@ -320,12 +408,14 @@ class Nia_Admin {
 				</a>
 
 				<a class="nia-admin-kpi-card<?php echo $data['stock']['count'] > 0 ? ' nia-admin-kpi-card--alert' : ''; ?>" href="<?php echo esc_url( admin_url( 'edit.php?post_type=product' ) ); ?>">
+					<span class="material-symbols-outlined nia-admin-kpi-card__icon" aria-hidden="true">inventory_2</span>
 					<p class="nia-admin-kpi-card__label"><?php esc_html_e( 'Low Stock', 'nia-theme' ); ?></p>
 					<p class="nia-admin-kpi-card__value"><?php echo esc_html( $data['stock']['count'] ); ?></p>
 					<p class="nia-admin-kpi-card__meta"><?php esc_html_e( 'Products at or below threshold', 'nia-theme' ); ?></p>
 				</a>
 
 				<a class="nia-admin-kpi-card<?php echo $data['pending_reviews'] > 0 ? ' nia-admin-kpi-card--alert' : ''; ?>" href="<?php echo esc_url( admin_url( 'edit-comments.php?comment_type=review&comment_status=moderated' ) ); ?>">
+					<span class="material-symbols-outlined nia-admin-kpi-card__icon" aria-hidden="true">rate_review</span>
 					<p class="nia-admin-kpi-card__label"><?php esc_html_e( 'Pending Reviews', 'nia-theme' ); ?></p>
 					<p class="nia-admin-kpi-card__value"><?php echo esc_html( $data['pending_reviews'] ); ?></p>
 					<p class="nia-admin-kpi-card__meta"><?php esc_html_e( 'Awaiting moderation', 'nia-theme' ); ?></p>

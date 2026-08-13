@@ -16,6 +16,24 @@
  */
 
 /* ---------------------------------------------------------------------
+ * WP core's own theming variables (wp-admin/css/colors/_tokens.scss) —
+ * the officially-documented public hook, used natively throughout
+ * wp-admin for checkboxes/radios (`:checked` state — appearance is
+ * fully custom-painted, not the native OS control, so a plain CSS
+ * `accent-color` override has no effect), focus rings, and various
+ * other native-styled controls. Overriding these four gets broad,
+ * consistent brand coverage for free instead of chasing every
+ * individual `:checked::before` selector across every screen.
+ * ------------------------------------------------------------------- */
+
+body.wp-admin {
+	--wp-admin-theme-color: var(--nia-primary);
+	--wp-admin-theme-color--rgb: 224, 122, 16;
+	--wp-admin-theme-color-darker-10: var(--nia-primary-fixed-dim);
+	--wp-admin-theme-color-darker-20: #b35a07;
+}
+
+/* ---------------------------------------------------------------------
  * Admin menu (sidebar)
  * ------------------------------------------------------------------- */
 

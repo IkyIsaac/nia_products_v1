@@ -39,11 +39,15 @@ class Nia_Admin {
 	 * admin-wide. `woocommerce_page_wc-orders` is the HPOS Orders screen
 	 * (this install's active order-storage mode); `edit-shop_order` is the
 	 * legacy post-table equivalent, included for robustness if HPOS is ever
-	 * toggled off.
+	 * toggled off. `edit-product` is the Products list screen;
+	 * `product_page_product-reviews` is Products -> Reviews; `product` is
+	 * the single Add/Edit Product screen (post-new.php/post.php share one
+	 * screen id, the post type itself); `edit-nia_subscription` is the
+	 * Subscriptions list screen.
 	 *
 	 * @var string[]
 	 */
-	private $screens = array( 'dashboard', 'woocommerce_page_wc-orders', 'edit-shop_order' );
+	private $screens = array( 'dashboard', 'woocommerce_page_wc-orders', 'edit-shop_order', 'edit-product', 'product_page_product-reviews', 'product', 'edit-nia_subscription' );
 
 	/**
 	 * Wire hooks.
@@ -57,6 +61,41 @@ class Nia_Admin {
 		add_action( 'woocommerce_order_status_changed', array( $this, 'flush_overview_cache' ) );
 		add_action( 'save_post_nia_subscription', array( $this, 'flush_overview_cache' ) );
 		add_action( 'transition_comment_status', array( $this, 'flush_overview_cache' ) );
+
+		// Dedicated "Actions" column (kebab menu target) on every list
+		// table this plugin redesigns, instead of the actions living
+		// inside whichever column happens to be primary. See the
+		// "List table Actions columns" section below.
+		add_filter( 'manage_product_posts_columns', array( $this, 'add_products_actions_column' ), 20 );
+		add_action( 'manage_product_posts_custom_column', array( $this, 'render_products_actions_column' ) );
+
+		add_filter( 'woocommerce_product_reviews_table_columns', array( $this, 'add_reviews_list_actions_column' ) );
+		add_action( 'woocommerce_product_reviews_table_column_nia_actions', array( $this, 'render_reviews_list_actions_column' ) );
+
+		// Products list Stock column: WooCommerce's own default appends a
+		// plain-text " (46)" after the status pill, sitting flush against
+		// it with no visual separation. This is WC's own documented
+		// extension point for that exact string (WC_Admin_List_Table_Products::render_is_in_stock_column()),
+		// so a hook — not an override — is enough to reformat it as a
+		// proper "46 in stock" subtitle line.
+		add_filter( 'woocommerce_admin_stock_html', array( $this, 'format_stock_column_html' ), 10, 2 );
+
+		// The single product screen's "Reviews" meta box. WP core's own
+		// post_comment_meta_box() (relabeled "Reviews" by WooCommerce) is
+		// backed by WP_Post_Comments_List_Table, which *hardcodes*
+		// get_column_info() (author/comment only, no filter applied) and
+		// never prints a <thead> at all — the "no order, no columns"
+		// complaint is real: there is no column system to hook here, only
+		// two fixed cells per row. Replaced with our own callback instead
+		// (still standard WordPress row markup underneath — see
+		// render_product_reviews_meta_box()'s own docblock for how it
+		// reuses WP_Comments_List_Table's real, filterable columns and
+		// stock moderation actions rather than reimplementing them).
+		// Priority 25: after WooCommerce's own relabeling of this same
+		// meta box (rename_meta_boxes(), priority 20).
+		add_action( 'add_meta_boxes', array( $this, 'replace_reviews_meta_box' ), 25 );
+		add_filter( 'manage_nia-product-reviews-metabox_columns', array( $this, 'add_review_meta_box_columns' ), 20 );
+		add_action( 'manage_comments_custom_column', array( $this, 'render_review_meta_box_column' ), 10, 2 );
 	}
 
 	/**
@@ -87,6 +126,16 @@ class Nia_Admin {
 		// between two plugins' styles isn't guaranteed, and WC's own
 		// default status colors silently won at least once during dev.
 		wp_enqueue_style( 'nia-admin', NIA_CORE_URI . 'assets/css/admin.css', array( 'nia-admin-tokens', 'nia-theme-fonts', 'woocommerce_admin_styles' ), NIA_CORE_VERSION );
+
+		if ( in_array( $screen->id, array( 'edit-product', 'product_page_product-reviews', 'product', 'edit-nia_subscription' ), true ) ) {
+			// On the single product screen, this also collapses the row
+			// actions in the "Reviews" meta box (add_meta_box( 'commentsdiv',
+			// __( 'Reviews' ), 'post_comment_meta_box', 'product', ... ) —
+			// WP core's own comments meta box, relabeled by WooCommerce —
+			// which renders the exact same td.column-primary .row-actions
+			// markup as any other list table.
+			wp_enqueue_script( 'nia-admin-products', NIA_CORE_URI . 'assets/js/admin-products.js', array(), NIA_CORE_VERSION, true );
+		}
 	}
 
 	/**
@@ -471,5 +520,234 @@ class Nia_Admin {
 			</div>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Reformat the Products list's Stock column: WooCommerce's own default
+	 * appends a bare " (46)" as plain text directly after the status pill
+	 * (`WC_Admin_List_Table_Products::render_is_in_stock_column()`).
+	 * Rebuilt via the filter that method already documents for exactly
+	 * this purpose, as a proper "46 in stock" subtitle line instead.
+	 *
+	 * @param string     $html    Default stock HTML.
+	 * @param WC_Product $product Product being rendered.
+	 * @return string
+	 */
+	public function format_stock_column_html( $html, $product ) {
+		if ( ! $product->managing_stock() ) {
+			return $html;
+		}
+
+		if ( $product->is_on_backorder() ) {
+			$class = 'onbackorder';
+			$label = __( 'On backorder', 'nia-theme' );
+		} elseif ( $product->is_in_stock() ) {
+			$class = 'instock';
+			$label = __( 'In stock', 'nia-theme' );
+		} else {
+			$class = 'outofstock';
+			$label = __( 'Out of stock', 'nia-theme' );
+		}
+
+		return sprintf(
+			'<mark class="%1$s">%2$s</mark><span class="nia-stock-qty">%3$s</span>',
+			esc_attr( $class ),
+			esc_html( $label ),
+			esc_html(
+				sprintf(
+					/* translators: %s: stock quantity */
+					__( '%s in stock', 'nia-theme' ),
+					wc_stock_amount( $product->get_stock_quantity() )
+				)
+			)
+		);
+	}
+
+	/*
+	 * List table "Actions" columns
+	 *
+	 * A dedicated column (rather than actions living inside whichever
+	 * column happens to be primary) on every list table this plugin
+	 * touches. Each `add_*_column()` method below just adds the column
+	 * header; the actual kebab menu is built client-side by
+	 * admin-products.js, which moves the row's real `.row-actions`
+	 * element (rendered by WP/WC core into the *primary* column, same as
+	 * before) into this column's cell — these render methods only need
+	 * to emit a placeholder for the JS to find.
+	 */
+
+	/**
+	 * Placeholder markup the kebab-menu script looks for and fills in.
+	 */
+	private function render_actions_placeholder() {
+		echo '<span class="nia-actions-target"></span>';
+	}
+
+	/**
+	 * Add the Actions column to the Products list.
+	 *
+	 * @param array $columns Existing columns.
+	 * @return array
+	 */
+	public function add_products_actions_column( $columns ) {
+		$columns['nia_actions'] = __( 'Actions', 'nia-theme' );
+		return $columns;
+	}
+
+	/**
+	 * Render the Products list's Actions column.
+	 *
+	 * @param string $column Column key.
+	 */
+	public function render_products_actions_column( $column ) {
+		if ( 'nia_actions' === $column ) {
+			$this->render_actions_placeholder();
+		}
+	}
+
+	/**
+	 * Add the Actions column to the Product Reviews list
+	 * (Products -> Reviews).
+	 *
+	 * @param array $columns Existing columns.
+	 * @return array
+	 */
+	public function add_reviews_list_actions_column( $columns ) {
+		$columns['nia_actions'] = __( 'Actions', 'nia-theme' );
+		return $columns;
+	}
+
+	/**
+	 * Render the Product Reviews list's Actions column.
+	 */
+	public function render_reviews_list_actions_column() {
+		$this->render_actions_placeholder();
+	}
+
+	/**
+	 * Swap WordPress core's default "Reviews" meta box (post_comment_meta_box(),
+	 * WP_Post_Comments_List_Table — hardcoded 2-column, headerless, see the
+	 * constructor's own comment) for our own callback.
+	 */
+	public function replace_reviews_meta_box() {
+		remove_meta_box( 'commentsdiv', 'product', 'normal' );
+		add_meta_box( 'commentsdiv', __( 'Reviews', 'nia-theme' ), array( $this, 'render_product_reviews_meta_box' ), 'product', 'normal', 'high' );
+	}
+
+	/**
+	 * Render the "Reviews" meta box as a real table — visible column
+	 * headers, a Rating column, and the same Actions kebab menu as every
+	 * other list table, none of which the default meta box has (it never
+	 * prints a `<thead>` at all).
+	 *
+	 * Deliberately built on WP core's own `WP_Comments_List_Table` (the
+	 * *standard* one — not the broken `WP_Post_Comments_List_Table` this
+	 * meta box normally uses) rather than hand-rolling the moderation
+	 * links ourselves: `single_row()` already produces correct
+	 * Approve/Unapprove/Reply/Quick&nbsp;Edit/Edit/Spam/Trash links with
+	 * properly-scoped nonces, and reusing it means this table stays
+	 * correct if WordPress ever changes that logic. A synthetic screen id
+	 * ("nia-product-reviews-metabox", not a real WP admin screen) scopes
+	 * our `manage_{$id}_columns` filter to only this table, so adding a
+	 * Rating column here can never leak onto the site's main Comments
+	 * screen the way hooking the shared `edit-comments` screen id would.
+	 *
+	 * @param WP_Post $post Current product.
+	 */
+	public function render_product_reviews_meta_box( $post ) {
+		$comments = get_comments(
+			array(
+				'post_id' => $post->ID,
+				'status'  => 'all',
+				'orderby' => 'comment_date_gmt',
+				'order'   => 'DESC',
+			)
+		);
+
+		if ( ! $comments ) {
+			echo '<p>' . esc_html__( 'No reviews yet.', 'nia-theme' ) . '</p>';
+			return;
+		}
+
+		$table = _get_list_table( 'WP_Comments_List_Table', array( 'screen' => 'nia-product-reviews-metabox' ) );
+		wp_nonce_field( 'fetch-list-' . get_class( $table ), '_ajax_fetch_list_nonce' );
+		?>
+		<table class="wp-list-table widefat fixed striped comments">
+			<thead>
+				<tr><?php $table->print_column_headers(); ?></tr>
+			</thead>
+			<tbody id="the-comment-list" data-wp-lists="list:comment">
+				<?php
+				foreach ( $comments as $comment ) {
+					$table->single_row( $comment );
+				}
+
+				// WP_Comments_List_Table::single_row() reassigns the global
+				// $post to each comment's own post for the duration of that
+				// row, then unsets $GLOBALS['post'] entirely once done —
+				// harmless on the standalone Comments screen, but here it
+				// silently deletes the global for every meta box that
+				// renders after ours on this same product edit screen
+				// (WooCommerce's own Product Data box among them, which
+				// fatals without it). Restore it to the actual product
+				// this meta box was passed.
+				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- restoring what WP_Comments_List_Table::single_row() itself unset; not introducing a new override.
+				$GLOBALS['post'] = $post;
+				?>
+			</tbody>
+		</table>
+		<?php
+	}
+
+	/**
+	 * Add Rating and Actions columns to the single product screen's
+	 * "Reviews" meta box — neither existed before (WP core's default
+	 * comments meta box only shows Author/Comment/Submitted-on).
+	 *
+	 * @param array $columns Existing columns.
+	 * @return array
+	 */
+	public function add_review_meta_box_columns( $columns ) {
+		$with_rating = array();
+		foreach ( $columns as $key => $label ) {
+			$with_rating[ $key ] = $label;
+			if ( 'comment' === $key ) {
+				$with_rating['rating'] = __( 'Rating', 'nia-theme' );
+			}
+		}
+		$with_rating['nia_actions'] = __( 'Actions', 'nia-theme' );
+		return $with_rating;
+	}
+
+	/**
+	 * Render the "Reviews" meta box's Rating and Actions columns.
+	 *
+	 * @param string $column     Column key.
+	 * @param int    $comment_id Comment (review) ID.
+	 */
+	public function render_review_meta_box_column( $column, $comment_id ) {
+		if ( 'nia_actions' === $column ) {
+			$this->render_actions_placeholder();
+			return;
+		}
+
+		if ( 'rating' !== $column ) {
+			return;
+		}
+
+		$rating = get_comment_meta( $comment_id, 'rating', true );
+		if ( ! $rating || ! is_numeric( $rating ) ) {
+			echo '<span class="na">&ndash;</span>';
+			return;
+		}
+
+		$rating = (int) $rating;
+		printf(
+			'<span class="nia-comment-rating" aria-label="%1$s">%2$s%3$s</span>',
+			/* translators: %d: rating out of 5 */
+			esc_attr( sprintf( __( '%d out of 5', 'nia-theme' ), $rating ) ),
+			esc_html( str_repeat( '★', $rating ) ),
+			esc_html( str_repeat( '☆', 5 - $rating ) )
+		);
 	}
 }

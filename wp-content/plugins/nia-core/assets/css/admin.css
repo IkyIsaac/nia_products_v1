@@ -327,3 +327,579 @@
 	background: var(--nia-surface-container-low);
 	color: var(--nia-on-surface-variant);
 }
+
+/* ---------------------------------------------------------------------
+ * List tables — shared row hover (Orders + Products both use WP's
+ * standard `.wp-list-table.widefat` markup; WP core adds no hover
+ * background by default).
+ * ------------------------------------------------------------------- */
+
+.wp-list-table.widefat tbody tr:hover {
+	background: var(--nia-surface-container-low);
+}
+
+/* ---------------------------------------------------------------------
+ * Products list
+ *
+ * Re-themes WooCommerce core's own stable markup — no template override
+ * or PHP hook needed: `.column-thumb img` (product thumbnail) and the
+ * Stock column's `<mark class="instock|outofstock|onbackorder">` (same
+ * pattern as `.order-status` above — WC's own default is plain colored
+ * text with a transparent background).
+ *
+ * Specificity gotcha: WC's own admin.css nests these same selectors one
+ * level deeper (`table.wp-list-table td.column-thumb img`,
+ * `table.wp-list-table mark.instock`), which out-specifies a bare
+ * `.column-thumb img` / `.column-is_in_stock mark.instock` — the rule
+ * loading later (our `woocommerce_admin_styles` dependency, see the
+ * Orders section above) doesn't help when the *other* stylesheet's
+ * selector is more specific. Prefixed with `.post-type-product` (a real
+ * WP-generated body class on this screen) — CSS specificity is compared
+ * tier by tier (classes before elements), so this needs *three* classes
+ * to beat WC's two-class/three-element compiled selector outright, not
+ * just a like-for-like swap of one class for another (which still loses
+ * on the element tier — caught via a real computed-width check, not
+ * just eyeballing the border-radius/border that happened to apply fine).
+ * ------------------------------------------------------------------- */
+
+.post-type-product .wp-list-table .column-thumb img {
+	width: 52px;
+	height: 52px;
+	max-width: 52px; /* WC's own rule sets max-width:40px separately from width — both cascade independently, so width alone isn't enough to grow past it */
+	max-height: 52px;
+	object-fit: cover;
+	border-radius: 8px;
+	border: 1px solid var(--nia-surface-variant);
+}
+
+.post-type-product .column-is_in_stock mark {
+	display: inline-flex;
+	align-items: center;
+	padding: 4px 10px;
+	border-radius: 999px;
+	background: var(--nia-surface-container-low);
+	color: var(--nia-on-surface-variant);
+	font-family: Montserrat, -apple-system, sans-serif;
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+}
+
+.post-type-product .column-is_in_stock mark.instock {
+	background: var(--nia-primary-10);
+	color: var(--nia-primary);
+}
+
+.post-type-product .column-is_in_stock mark.outofstock {
+	background: var(--nia-error-container);
+	color: var(--nia-on-error-container);
+}
+
+.post-type-product .column-is_in_stock mark.onbackorder {
+	background: var(--nia-tertiary-container);
+	color: var(--nia-on-tertiary-container);
+}
+
+.nia-stock-qty {
+	display: block;
+	margin-top: 4px;
+	font-family: Montserrat, -apple-system, sans-serif;
+	font-size: 12px;
+	color: var(--nia-on-surface-variant);
+}
+
+.post-type-product .column-name .row-title {
+	color: var(--nia-on-surface);
+	font-weight: 600;
+}
+
+.post-type-product .column-name .row-title:hover {
+	color: var(--nia-primary);
+}
+
+.post-type-product .column-product_cat a,
+.post-type-product .column-product_tag a {
+	display: inline-block;
+	margin: 2px 4px 2px 0;
+	padding: 2px 10px;
+	border-radius: 999px;
+	background: var(--nia-surface-container);
+	color: var(--nia-on-surface-variant);
+	font-family: Montserrat, -apple-system, sans-serif;
+	font-size: 11px;
+	text-decoration: none;
+}
+
+.post-type-product .column-product_cat a:hover,
+.post-type-product .column-product_tag a:hover {
+	background: var(--nia-primary-10);
+	color: var(--nia-primary);
+}
+
+/* ---------------------------------------------------------------------
+ * Products list — status links (All | Published | Trash) and the
+ * filters bar (category/type/stock/brand dropdowns, search box, Filter
+ * button). Same "follow the frontend's own form pattern" goal as the
+ * Quick Edit section below — brand focus color instead of WP's default
+ * blue ring, bordered boxes instead of default browser chrome.
+ * ------------------------------------------------------------------- */
+
+.post-type-product .subsubsub a.current {
+	color: var(--nia-primary);
+	font-weight: 600;
+}
+
+.post-type-product .subsubsub a:hover {
+	color: var(--nia-primary-fixed-dim);
+}
+
+.post-type-product .tablenav .actions select,
+.post-type-product #post-search-input {
+	border: 1px solid var(--nia-surface-variant);
+	border-radius: 8px;
+	background-color: var(--nia-surface-container-lowest);
+	color: var(--nia-on-surface);
+	font-family: Montserrat, -apple-system, sans-serif;
+	font-size: 13px;
+}
+
+.post-type-product .tablenav .actions select:focus,
+.post-type-product #post-search-input:focus {
+	border-color: var(--nia-primary);
+	box-shadow: 0 0 0 1px var(--nia-primary);
+	outline: none;
+}
+
+.post-type-product .tablenav .actions .button,
+.post-type-product #search-submit {
+	border-radius: 8px;
+	border-color: var(--nia-on-surface);
+	background: transparent;
+	color: var(--nia-on-surface);
+	font-family: Montserrat, -apple-system, sans-serif;
+	font-weight: 600;
+	box-shadow: none;
+	text-shadow: none;
+}
+
+.post-type-product .tablenav .actions .button:hover,
+.post-type-product .tablenav .actions .button:focus,
+.post-type-product #search-submit:hover,
+.post-type-product #search-submit:focus {
+	background: var(--nia-on-surface);
+	border-color: var(--nia-on-surface);
+	color: var(--nia-surface);
+}
+
+/* ---------------------------------------------------------------------
+ * Products list — Quick Edit / Bulk Edit
+ *
+ * WooCommerce's own fields (#woocommerce-fields, html-quick-edit-
+ * product.php) and WP core's shared fields (categories, tags, date —
+ * class-wp-posts-list-table.php) both render into the same
+ * `.inline-edit-row`, using the same field conventions (label > .title,
+ * .input-text-wrap, input.text) — re-themed together via those shared
+ * classes rather than chasing each field's individual origin. Bulk Edit
+ * (`#woocommerce-fields-bulk`) shares this exact markup, so it picks up
+ * the same treatment for free.
+ * ------------------------------------------------------------------- */
+
+.post-type-product .inline-edit-row {
+	background: var(--nia-surface-container-lowest);
+	border-radius: var(--nia-radius);
+}
+
+.post-type-product .inline-edit-row h4 {
+	font-family: 'Playfair Display', Georgia, serif;
+	font-weight: 600;
+	color: var(--nia-on-surface);
+}
+
+.post-type-product .inline-edit-row .inline-edit-col label .title,
+.post-type-product .inline-edit-row .inline-edit-col span.title,
+.post-type-product .inline-edit-row .inline-edit-col label > span:first-child {
+	font-family: Montserrat, -apple-system, sans-serif;
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: var(--nia-on-surface-variant);
+}
+
+.post-type-product .inline-edit-row input[type='text'],
+.post-type-product .inline-edit-row input[type='number'],
+.post-type-product .inline-edit-row input[type='email'],
+.post-type-product .inline-edit-row select,
+.post-type-product .inline-edit-row textarea {
+	border: 1px solid var(--nia-surface-variant);
+	border-radius: 8px;
+	background-color: var(--nia-surface-container-lowest);
+	color: var(--nia-on-surface);
+}
+
+.post-type-product .inline-edit-row input[type='text']:focus,
+.post-type-product .inline-edit-row input[type='number']:focus,
+.post-type-product .inline-edit-row input[type='email']:focus,
+.post-type-product .inline-edit-row select:focus,
+.post-type-product .inline-edit-row textarea:focus {
+	border-color: var(--nia-primary);
+	box-shadow: 0 0 0 1px var(--nia-primary);
+	outline: none;
+}
+
+/* Checkbox/radio color comes from overriding WP core's own
+ * --wp-admin-theme-color variable sitewide (admin-chrome.css) — WP
+ * disables native checkbox appearance and paints its own `:checked`
+ * state from that variable, so a plain `accent-color` override here
+ * would be a silent no-op. */
+
+.post-type-product .inline-edit-row .cat-checklist label:hover {
+	color: var(--nia-primary);
+}
+
+.post-type-product .inline-edit-row .button-primary {
+	border-radius: 8px;
+}
+
+/* ---------------------------------------------------------------------
+ * List tables — row actions collapsed into a kebab menu
+ *
+ * Shared across every list table this plugin redesigns (Products,
+ * Product Reviews, Subscriptions, and the single product screen's
+ * "Reviews" meta box) — not re-scoped per screen here, since this whole
+ * stylesheet already only loads on those screens (Nia_Admin::$screens).
+ * The menu markup itself is built by admin-products.js, which moves the
+ * existing `.row-actions` element (unchanged) into a dedicated Actions
+ * column's cell (`.nia-row-menu--dedicated`) where one exists, or inline
+ * next to the primary column's content as a fallback otherwise. This CSS
+ * only styles the result; it does nothing without the JS.
+ * ------------------------------------------------------------------- */
+
+td.column-primary .row-actions {
+	position: static;
+}
+
+.nia-row-menu {
+	position: relative;
+	display: inline-block;
+	margin-left: 6px;
+	vertical-align: middle;
+}
+
+.nia-row-menu--dedicated {
+	margin-left: 0;
+}
+
+.nia-row-menu-toggle {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 26px;
+	height: 26px;
+	padding: 0;
+	border: none;
+	border-radius: 6px;
+	background: transparent;
+	color: var(--nia-on-surface-variant);
+	font-size: 16px;
+	line-height: 1;
+	cursor: pointer;
+}
+
+.nia-row-menu-toggle:hover,
+.nia-row-menu-toggle.is-open {
+	background: var(--nia-surface-container);
+	color: var(--nia-on-surface);
+}
+
+.nia-row-menu-panel {
+	display: none;
+	position: absolute;
+	top: 100%;
+	right: 0;
+	z-index: 10;
+	min-width: 150px;
+	margin-top: 4px;
+	padding: 6px;
+	background: var(--nia-surface-container-lowest);
+	border: 1px solid var(--nia-surface-variant);
+	border-radius: var(--nia-radius);
+	box-shadow: 0 8px 24px rgba(30, 26, 16, 0.14);
+	text-align: left;
+}
+
+.nia-row-menu:not(.nia-row-menu--dedicated) .nia-row-menu-panel {
+	right: auto;
+	left: 0;
+}
+
+.nia-row-menu-panel.is-open {
+	display: block;
+}
+
+.nia-row-menu-panel .row-actions {
+	/* WP core's default row-actions is hover-revealed via `visibility`,
+	 * not `display` — once the panel is open it must show regardless of
+	 * row-hover state. */
+	visibility: visible;
+	color: inherit;
+}
+
+.nia-row-menu-panel .row-actions .id {
+	/* WC's non-actionable "ID: 70" label (get_row_actions()) — plain
+	 * text, not a link, so it doesn't fit the button-per-line menu look. */
+	display: none;
+}
+
+.nia-row-menu-panel .row-actions span {
+	display: block;
+}
+
+.nia-row-menu-panel .row-actions a,
+.nia-row-menu-panel .row-actions button {
+	display: block;
+	width: 100%;
+	padding: 7px 10px;
+	border: none;
+	border-radius: 6px;
+	background: none;
+	text-align: left;
+	text-decoration: none;
+	white-space: nowrap;
+	font-family: Montserrat, -apple-system, sans-serif;
+	font-size: 13px;
+	color: var(--nia-on-surface);
+	cursor: pointer;
+}
+
+.nia-row-menu-panel .row-actions a:hover,
+.nia-row-menu-panel .row-actions button:hover {
+	background: var(--nia-primary-10);
+	color: var(--nia-primary);
+}
+
+.nia-row-menu-panel .row-actions .trash a,
+.nia-row-menu-panel .row-actions .spam a {
+	color: var(--nia-error);
+}
+
+.nia-row-menu-panel .row-actions .trash a:hover,
+.nia-row-menu-panel .row-actions .spam a:hover {
+	background: var(--nia-error-container);
+	color: var(--nia-on-error-container);
+}
+
+/* ---------------------------------------------------------------------
+ * Dedicated "Actions" column — Products, Product Reviews, Subscriptions,
+ * and the single product screen's "Reviews" meta box all add a real
+ * `nia_actions` column (Nia_Admin/Nia_Subscriptions) rather than leaving
+ * the kebab menu crowded into whichever column is primary.
+ * ------------------------------------------------------------------- */
+
+th.column-nia_actions,
+td.column-nia_actions {
+	width: 72px;
+	text-align: center !important;
+}
+
+/* ---------------------------------------------------------------------
+ * Single product screen "Reviews" meta box — star rating column
+ * (Nia_Admin::render_review_meta_box_column()); never shown here before.
+ * ------------------------------------------------------------------- */
+
+.nia-comment-rating {
+	color: var(--nia-primary);
+	letter-spacing: 1px;
+	white-space: nowrap;
+}
+
+#commentsdiv .wp-list-table {
+	table-layout: auto;
+}
+
+#commentsdiv td,
+#commentsdiv th {
+	padding: 10px;
+}
+
+/* ---------------------------------------------------------------------
+ * Products list — remaining columns (Featured star, Brands chip)
+ * ------------------------------------------------------------------- */
+
+/* Same specificity gotcha as .column-thumb img above: WC's own rule is
+ * `table.wp-list-table span.wc-featured::before` (2 classes, 3 elements),
+ * so a bare `.wc-featured::before` (2 classes, 1 element) still loses on
+ * the element tier — `.wp-list-table` added as a third class to win the
+ * class tier outright. */
+.post-type-product .wp-list-table .wc-featured::before {
+	color: var(--nia-primary);
+}
+
+.post-type-product .wp-list-table .wc-featured.not-featured::before {
+	color: var(--nia-surface-variant);
+}
+
+.post-type-product .column-taxonomy-product_brand a {
+	display: inline-block;
+	margin: 2px 4px 2px 0;
+	padding: 2px 10px;
+	border-radius: 999px;
+	background: var(--nia-surface-container);
+	color: var(--nia-on-surface-variant);
+	font-family: Montserrat, -apple-system, sans-serif;
+	font-size: 11px;
+	text-decoration: none;
+}
+
+.post-type-product .column-taxonomy-product_brand a:hover {
+	background: var(--nia-primary-10);
+	color: var(--nia-primary);
+}
+
+/* ---------------------------------------------------------------------
+ * Product Reviews (Products -> Reviews, screen id
+ * product_page_product-reviews) — star rating color + the same
+ * filters-bar/status-links treatment already built for Products.
+ * ------------------------------------------------------------------- */
+
+.product_page_product-reviews .column-rating span {
+	color: var(--nia-primary);
+	letter-spacing: 1px;
+}
+
+.product_page_product-reviews .subsubsub a.current {
+	color: var(--nia-primary);
+	font-weight: 600;
+}
+
+.product_page_product-reviews .subsubsub a:hover {
+	color: var(--nia-primary-fixed-dim);
+}
+
+.product_page_product-reviews .tablenav .actions select,
+.product_page_product-reviews input[type='search'] {
+	border: 1px solid var(--nia-surface-variant);
+	border-radius: 8px;
+	background-color: var(--nia-surface-container-lowest);
+	color: var(--nia-on-surface);
+	font-family: Montserrat, -apple-system, sans-serif;
+	font-size: 13px;
+}
+
+.product_page_product-reviews .tablenav .actions select:focus,
+.product_page_product-reviews input[type='search']:focus {
+	border-color: var(--nia-primary);
+	box-shadow: 0 0 0 1px var(--nia-primary);
+	outline: none;
+}
+
+.product_page_product-reviews .tablenav .actions .button,
+.product_page_product-reviews input[type='submit'] {
+	border-radius: 8px;
+	border-color: var(--nia-on-surface);
+	background: transparent;
+	color: var(--nia-on-surface);
+	font-family: Montserrat, -apple-system, sans-serif;
+	font-weight: 600;
+	box-shadow: none;
+	text-shadow: none;
+}
+
+.product_page_product-reviews .tablenav .actions .button:hover,
+.product_page_product-reviews input[type='submit']:hover {
+	background: var(--nia-on-surface);
+	border-color: var(--nia-on-surface);
+	color: var(--nia-surface);
+}
+
+/* ---------------------------------------------------------------------
+ * Edit/Add Product screen
+ *
+ * Meta boxes (Publish, Product image, Product gallery, Product data,
+ * Categories, Tags) get the same card treatment as everywhere else
+ * (white bg, radius, Montserrat header) — a generic `.postbox` rule
+ * covers all of them at once rather than styling each meta box ID.
+ * TinyMCE's own classic-editor toolbar is deliberately left alone: it's
+ * a separate, WP-maintained visual system, and reskinning it is high
+ * effort for low value here.
+ * ------------------------------------------------------------------- */
+
+.post-type-product.post-php #poststuff .postbox,
+.post-type-product.post-new-php #poststuff .postbox {
+	border: 1px solid var(--nia-surface-variant);
+	border-radius: var(--nia-radius);
+	box-shadow: none;
+	background: var(--nia-surface-container-lowest);
+}
+
+.post-type-product.post-php #poststuff .postbox > .postbox-header,
+.post-type-product.post-new-php #poststuff .postbox > .postbox-header {
+	border-bottom: 1px solid var(--nia-surface-variant);
+	border-radius: var(--nia-radius) var(--nia-radius) 0 0;
+}
+
+.post-type-product.post-php #poststuff .postbox .hndle,
+.post-type-product.post-new-php #poststuff .postbox .hndle {
+	font-family: Montserrat, -apple-system, sans-serif;
+	font-size: 13px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: var(--nia-on-surface-variant);
+}
+
+.post-type-product.post-php #poststuff #titlewrap #title,
+.post-type-product.post-new-php #poststuff #titlewrap #title {
+	border: 1px solid var(--nia-surface-variant);
+	border-radius: 8px;
+}
+
+.post-type-product.post-php #poststuff #titlewrap #title:focus,
+.post-type-product.post-new-php #poststuff #titlewrap #title:focus {
+	border-color: var(--nia-primary);
+	box-shadow: 0 0 0 1px var(--nia-primary);
+	outline: none;
+}
+
+/* Product data tabs — WC's own active-tab rule is ID-anchored
+ * (`#woocommerce-product-data ul.wc-tabs li.active a`), so ours must
+ * match at the same specificity tier (an ID selector always beats any
+ * number of classes) and rely on load order to win, same principle as
+ * the Orders status-pill load-order fix above. */
+#woocommerce-product-data ul.wc-tabs li.active a {
+	background: var(--nia-primary-10);
+	color: var(--nia-primary);
+}
+
+#woocommerce-product-data ul.wc-tabs li a:hover {
+	background: var(--nia-surface-container);
+}
+
+#woocommerce-product-data input[type='text'],
+#woocommerce-product-data input[type='number'],
+#woocommerce-product-data select,
+#woocommerce-product-data textarea {
+	border: 1px solid var(--nia-surface-variant);
+	border-radius: 8px;
+	background-color: var(--nia-surface-container-lowest);
+}
+
+#woocommerce-product-data input[type='text']:focus,
+#woocommerce-product-data input[type='number']:focus,
+#woocommerce-product-data select:focus,
+#woocommerce-product-data textarea:focus {
+	border-color: var(--nia-primary);
+	box-shadow: 0 0 0 1px var(--nia-primary);
+	outline: none;
+}
+
+.post-type-product.post-php #categorydiv .categorychecklist label:hover,
+.post-type-product.post-new-php #categorydiv .categorychecklist label:hover {
+	color: var(--nia-primary);
+}
+
+.post-type-product.post-php .tagchecklist .ntdelbutton,
+.post-type-product.post-new-php .tagchecklist .ntdelbutton {
+	color: var(--nia-error);
+}

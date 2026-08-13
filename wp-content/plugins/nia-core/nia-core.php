@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
 // Bump on every change to assets/ (admin.css, block JS, etc.) — this feeds
 // every wp_enqueue_*()'s $ver argument for cache-busting (same convention
 // as the theme's NIA_THEME_VERSION, see functions.php).
-define( 'NIA_CORE_VERSION', '0.4.0' );
+define( 'NIA_CORE_VERSION', '0.12.0' );
 define( 'NIA_CORE_DIR', plugin_dir_path( __FILE__ ) );
 define( 'NIA_CORE_URI', plugin_dir_url( __FILE__ ) );
 

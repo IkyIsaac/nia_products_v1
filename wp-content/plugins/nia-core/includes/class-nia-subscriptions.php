@@ -267,12 +267,18 @@ class Nia_Subscriptions {
 	 */
 	public function admin_columns( $columns ) {
 		unset( $columns['date'] );
-		$columns['customer']       = __( 'Customer', 'nia-theme' );
-		$columns['cadence']        = __( 'Cadence', 'nia-theme' );
-		$columns['products']       = __( 'Products', 'nia-theme' );
-		$columns['next_delivery']  = __( 'Next Delivery', 'nia-theme' );
-		$columns['nia_status']     = __( 'Status', 'nia-theme' );
-		$columns['date']           = __( 'Created', 'nia-theme' );
+		$columns['customer']      = __( 'Customer', 'nia-theme' );
+		$columns['cadence']       = __( 'Cadence', 'nia-theme' );
+		$columns['products']      = __( 'Products', 'nia-theme' );
+		$columns['next_delivery'] = __( 'Next Delivery', 'nia-theme' );
+		$columns['nia_status']    = __( 'Status', 'nia-theme' );
+		$columns['date']          = __( 'Created', 'nia-theme' );
+		// Dedicated Actions column, same kebab-menu treatment (Nia_Admin,
+		// admin-products.js) as the Products and Product Reviews lists —
+		// the row's real Edit/Trash/View actions still render into the
+		// primary (title) column per WordPress core, the JS just moves
+		// them here.
+		$columns['nia_actions']   = __( 'Actions', 'nia-theme' );
 		return $columns;
 	}
 
@@ -312,6 +318,13 @@ class Nia_Subscriptions {
 				break;
 			case 'nia_status':
 				echo esc_html( ucfirst( get_post_meta( $post_id, '_nia_status', true ) ?: 'active' ) ); // phpcs:ignore WordPress.PHP.DisallowShortTernary.Found -- status is always set on creation; short ternary reads fine here.
+				break;
+			case 'nia_actions':
+				// Placeholder the kebab-menu script (admin-products.js) moves
+				// this row's real actions into — see Nia_Admin's own
+				// render_actions_placeholder() for the identical pattern
+				// used on the Products/Reviews lists.
+				echo '<span class="nia-actions-target"></span>';
 				break;
 		}
 	}
